@@ -1,0 +1,246 @@
+WEBVTT
+
+1
+00:00:05.540 --> 00:00:07.070
+Eugenia Sol Piñeiro: Bien, vamos a tener
+
+2
+00:00:07.340 --> 00:00:23.849
+Eugenia Sol Piñeiro: un ejercicio que va a ser un conjunto de datos de países de Europa donde vamos a tener varias variables. En particular. Bueno, el país, el área, el producto bruto interno, la inflación, la expectativa de vida, el presupuesto militar, la tasa de crecimiento de la población y una tasa de desempleo.
+
+3
+00:00:25.210 --> 00:00:28.680
+Eugenia Sol Piñeiro: Entonces, ¿qué es lo que quiero hacer con este conjunto de datos? Primero.
+
+4
+00:00:29.360 --> 00:00:33.350
+Eugenia Sol Piñeiro: volviendo a la clase anterior, vamos a calcular con la red de cojones.
+
+5
+00:00:33.670 --> 00:00:44.939
+Eugenia Sol Piñeiro: La vamos a aplicar sobre este problema. Que lo que quiero hacer es responder estas preguntas. Primero, cuáles son los países que tienen las mismas características en términos de todas las variables.
+
+6
+00:00:45.270 --> 00:00:50.669
+Eugenia Sol Piñeiro: por ejemplo, en geopolíticas, económicas y sociales. No, ¿Cómo puedo empezar a asociar esos países?
+
+7
+00:00:52.430 --> 00:01:01.610
+Eugenia Sol Piñeiro: ¿qué tienen que hacer? Es por lo menos realizar bueno, gráficos que demuestren los resultados. Esto es mucho del Tp. Tres, muy parecido de.
+
+8
+00:01:01.910 --> 00:01:18.809
+Eugenia Sol Piñeiro: Bueno, tengo mis resultados. En el caso de Cojonen, podía variar, Por ejemplo, ¿cuál es el K? ¿cuál es el tamaño de la grilla, cual es el radio en el que calculo mis vecinos? ¿tengo una grilla cuadrada o hexagonal. ¿cómo defino la actualización de mi red?
+
+9
+00:01:18.850 --> 00:01:31.599
+Eugenia Sol Piñeiro: ¿qué pasa si me quedan muchas neuronas muertas? ¿cómo puedo interpretar a los a los vecinos. ¿quién es mi neurona ganadora? Bueno, hay un montón de cosas para analizar la idea es que hagan un análisis exo exhaustivo sobre cojonen
+
+10
+00:01:31.600 --> 00:01:40.669
+Eugenia Sol Piñeiro: y analicen, saquen una interpretación de cómo pueden asociar esos países, no pierdan de vista ahí el problema que están intentando resolver. Ustedes necesitan
+
+11
+00:01:40.790 --> 00:01:42.620
+Eugenia Sol Piñeiro: asociar los países.
+
+12
+00:01:42.930 --> 00:01:49.849
+Eugenia Sol Piñeiro: entonces la respuesta tiene que estar acorde a eso. Además de todo el análisis de cómo llegaron a esa respuesta? ¿no?
+
+13
+00:01:51.350 --> 00:01:57.899
+Eugenia Sol Piñeiro: Bueno, este gráfico de las distancias promedio entre neuronas vecinas ¿Se acuerdan que ya hemos visto la matriz? U
+
+14
+00:01:58.060 --> 00:02:02.000
+Eugenia Sol Piñeiro: la clase pasada es básicamente
+
+15
+00:02:02.190 --> 00:02:11.139
+Eugenia Sol Piñeiro: ver el hitmap de Cojonen y ver la matriz u y poder interpretarlo, analizar cuántos países fueron asociados a cada neurona.
+
+16
+00:02:12.020 --> 00:02:18.480
+Eugenia Sol Piñeiro: Y después de la mano de esto, otra opción para resolverlo es el modelo de Hoja.
+
+17
+00:02:19.200 --> 00:02:22.109
+Eugenia Sol Piñeiro: Entonces, de nuevo, con lo que les mencionaba de
+
+18
+00:02:22.270 --> 00:02:35.869
+Eugenia Sol Piñeiro: hay muchas formas de resolver un mismo problema. La idea es que se lleven varias técnicas. Puedo aplicarlo con cojones. Puedo, por ejemplo, aplicar la red neuronal de hoja y asociar los países de esa forma. Entonces lo que tienen que hacer es calcular la primer componente principal.
+
+19
+00:02:36.690 --> 00:02:40.139
+Eugenia Sol Piñeiro: interpretar el resultado de la primer componente y comparar.
+
+20
+00:02:40.430 --> 00:02:48.019
+Eugenia Sol Piñeiro: Bueno, esto ahora les voy a decir es comparar el resultado del ejercicio de hoja con el resultado de con calcular la primer componente principal con una librería.
+
+21
+00:02:49.480 --> 00:02:52.260
+Eugenia Sol Piñeiro: Hay una librería que es la de Cycde Land
+
+22
+00:02:52.410 --> 00:02:58.920
+Eugenia Sol Piñeiro: pelear para los amigos que pueden usar, por ejemplo, para calcular
+
+23
+00:02:59.140 --> 00:03:02.700
+Eugenia Sol Piñeiro: los componentes principales, es decir, solo con el método de P. S A.
+
+24
+00:03:02.820 --> 00:03:10.850
+Eugenia Sol Piñeiro: Y después, la idea es comparar qué es lo que les da el método de P. C, a versus qué es lo que les da la red de Hoja que implementaron ustedes a mano sin librerías.
+
+25
+00:03:11.280 --> 00:03:14.350
+Eugenia Sol Piñeiro: Ahora, para la comparación.
+
+26
+00:03:14.930 --> 00:03:21.230
+Eugenia Sol Piñeiro: va a haber una entrega previa del ejercicio que tienen que hacer con la librería, que es el jueves que viene, es decir.
+
+27
+00:03:21.580 --> 00:03:25.879
+Eugenia Sol Piñeiro: el método del P C A sobre este conjunto de datos
+
+28
+00:03:26.090 --> 00:03:41.979
+Eugenia Sol Piñeiro: lo tienen que entregar el jueves que viene, y lo vamos a ver en clase. La idea es que aprovechen ahí para equivocarse, para para cometer todos los errores o para sacarse todas las dudas y que les quede bien ese ejercicio, porque después les tiene que dar lo mismo o el autodector opuesto con hoja.
+
+29
+00:03:42.630 --> 00:03:47.689
+Eugenia Sol Piñeiro: Entonces, ya si tienen mal eso no van a poder comparar con Óscar Entonces, la idea. Véanlo más como
+
+30
+00:03:48.450 --> 00:03:56.959
+Eugenia Sol Piñeiro: un un sanity check de que están bien encaminados. Y es un poco. Esa La idea no es una presentación formal, sino que es más.
+
+31
+00:03:57.140 --> 00:04:00.750
+Eugenia Sol Piñeiro: cada grupo mostrar el resultado
+
+32
+00:04:01.930 --> 00:04:20.430
+Eugenia Sol Piñeiro: y comparar, ¿no? Y tienen que hacer bien el análisis no. Fíjense que en P. C, A, las variables estaban correlacionadas. ¿cómo puedo interpretar el byplod? ¿cómo puedo interpretar el índice de la P. C. Uno qué es lo que significan las cargas? ¿cómo calculé los autovalores y auto vectores que eso bueno lo va a ser la librería, pero
+
+33
+00:04:20.519 --> 00:04:21.970
+Eugenia Sol Piñeiro: cuáles son las cargas?
+
+34
+00:04:22.180 --> 00:04:28.060
+Eugenia Sol Piñeiro: Porque eso me da información. Entonces hay cierto criterio también para responder.
+
+35
+00:04:28.580 --> 00:04:30.520
+Eugenia Sol Piñeiro: ¿qué es lo más importante en este caso
+
+36
+00:04:31.530 --> 00:04:37.270
+Eugenia Sol Piñeiro: y después este ejercicio lo vamos a ver la próxima. Hay otro ejercicio más con el modelo de Hopchill.
+
+37
+00:04:37.720 --> 00:04:43.329
+Eugenia Sol Piñeiro: Yo lo que recomiendo es que no se dividan por ejercicios.
+
+38
+00:04:43.780 --> 00:05:03.460
+Eugenia Sol Piñeiro: Primero, porque no va a llegar en cuanto a tiempo que por el Hopkill se ve, no la semana que viene, sino la otra. Entonces la idea es que ya vayan implementando cojones después. La próxima semana. Elizos es más de P, C A y hoja, y después la próxima de Hongfield, entonces van a quedar muy distribuidos en el tiempo y, además, todos deberían saber de todas las redes.
+
+39
+00:05:03.570 --> 00:05:07.829
+Eugenia Sol Piñeiro: Así que no, no recomiendo que se lo digan por red.
+
+40
+00:05:08.080 --> 00:05:12.960
+Eugenia Sol Piñeiro: Bueno, bien dudas el D, P, Uno.
+
+41
+00:05:13.950 --> 00:05:15.619
+Eugenia Sol Piñeiro: T, P: 1. T. P: 4.
+
+42
+00:05:18.120 --> 00:05:20.129
+Eugenia Sol Piñeiro: Les voy a mostrar el cronograma.
+
+43
+00:05:32.490 --> 00:05:36.529
+Eugenia Sol Piñeiro: Estamos acá Esta es la pre entregaga que les decía el jueves que viene
+
+44
+00:05:36.920 --> 00:05:50.959
+Eugenia Sol Piñeiro: tienen que entregarla por campus antes de las 9 y después venir a la clase a mostrar los resultados. La idea es que sea dinámico y que aprovechen también el espacio para consultar y que les podamos corregir, digamos, el ejercicio. Aprovechen el espacio.
+
+45
+00:05:51.180 --> 00:05:52.260
+Eugenia Sol Piñeiro: Bueno.
+
+46
+00:05:53.660 --> 00:05:58.729
+Eugenia Sol Piñeiro: entonces esto es el de P. C, A después. Fíjense que vemos con final acá y tienen toda una semana
+
+47
+00:05:58.940 --> 00:06:01.829
+Eugenia Sol Piñeiro: para implementarlo y ver el Tele: 4. Sí.
+
+48
+00:06:01.830 --> 00:06:08.410
+JOAQUÍN NICOLÁS YULÁN LUCIOLI: Yo el jueves que viene. No puedo venir, Me tengo que hacer una operación médica que no puedo postergar.
+
+49
+00:06:08.850 --> 00:06:09.480
+JOAQUÍN NICOLÁS YULÁN LUCIOLI: es.
+
+50
+00:06:09.480 --> 00:06:14.469
+Eugenia Sol Piñeiro: Aquí? No, obvio, ¿no? Pero tranquilo, pero que venga alguien de tu grupo.
+
+51
+00:06:14.750 --> 00:06:15.430
+JOAQUÍN NICOLÁS YULÁN LUCIOLI: Sí.
+
+52
+00:06:15.950 --> 00:06:19.629
+Eugenia Sol Piñeiro: Puede representar también tu Grupo. No hay problema con eso. Grupos estamos Okay.
+
+53
+00:06:19.980 --> 00:06:20.620
+JOAQUÍN NICOLÁS YULÁN LUCIOLI: Bueno.
+
+54
+00:06:21.750 --> 00:06:24.340
+Eugenia Sol Piñeiro: Y suerte en la operación. Ojalá que salga todo bien.
+
+55
+00:06:24.520 --> 00:06:25.079
+JOAQUÍN NICOLÁS YULÁN LUCIOLI: Sí, Sí.
+
+56
+00:06:25.080 --> 00:06:25.720
+Eugenia Sol Piñeiro: Sí.
+
+57
+00:06:26.200 --> 00:06:33.300
+Eugenia Sol Piñeiro: Bien, Bueno, eso tienen bastante tiempo para el T. P Cuatro
+
+58
+00:06:34.050 --> 00:06:42.379
+Eugenia Sol Piñeiro: acuérdense de los feedback que le dimos en el T. P. Tres ponerme los parámetros, hacer los experimentos de ablación.
+
+59
+00:06:42.740 --> 00:06:48.930
+Eugenia Sol Piñeiro: intentar mejorar sus resultados. ¿qué métricas usan para analizar? Cuidado, acá
+
+60
+00:06:49.970 --> 00:07:07.260
+Eugenia Sol Piñeiro: porque no estamos en problemas de clasificación, ¿no? Y las métricas que habíamos visto antes están más orientadas a clasificación. Entonces también es parte de eso que vean cómo puedo evaluar mis resultados. Obviamente nos pueden preguntar, pero denles la vuelta antes a ver cómo cómo lo pueden mejorar.
+
+61
+00:07:08.500 --> 00:07:09.360
+Eugenia Sol Piñeiro: Bien.
+
