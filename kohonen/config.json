@@ -1,0 +1,10 @@
+{
+  "K": 4,
+  "grilla": "rectangular",
+  "R_inicial": 4,
+  "R_modo": "adaptativo",
+  "eta_inicial": 0.5,
+  "eta_modo": "adaptativo",
+  "iteraciones_mult": 500,
+  "seed": 42
+}
