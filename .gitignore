@@ -7,3 +7,7 @@
 ### Obsidian ###
 .obsidian/
 .claude/
+
+### Python ###
+__pycache__/
+*.pyc

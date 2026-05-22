@@ -1,0 +1,64 @@
+(0,0) [0]: --- neurona muerta ---
+(0,1) [5]: Bulgaria, Estonia, Latvia, Poland, Ukraine
+(0,2) [0]: --- neurona muerta ---
+(0,3) [2]: Hungary, Lithuania
+(0,4) [1]: Slovakia
+(0,5) [0]: --- neurona muerta ---
+(0,6) [0]: --- neurona muerta ---
+(0,7) [1]: Slovenia
+(1,0) [2]: Croatia, Greece
+(1,1) [0]: --- neurona muerta ---
+(1,2) [0]: --- neurona muerta ---
+(1,3) [0]: --- neurona muerta ---
+(1,4) [0]: --- neurona muerta ---
+(1,5) [0]: --- neurona muerta ---
+(1,6) [0]: --- neurona muerta ---
+(1,7) [1]: Czech Republic
+(2,0) [0]: --- neurona muerta ---
+(2,1) [0]: --- neurona muerta ---
+(2,2) [0]: --- neurona muerta ---
+(2,3) [0]: --- neurona muerta ---
+(2,4) [0]: --- neurona muerta ---
+(2,5) [0]: --- neurona muerta ---
+(2,6) [0]: --- neurona muerta ---
+(2,7) [0]: --- neurona muerta ---
+(3,0) [0]: --- neurona muerta ---
+(3,1) [0]: --- neurona muerta ---
+(3,2) [0]: --- neurona muerta ---
+(3,3) [0]: --- neurona muerta ---
+(3,4) [0]: --- neurona muerta ---
+(3,5) [0]: --- neurona muerta ---
+(3,6) [0]: --- neurona muerta ---
+(3,7) [0]: --- neurona muerta ---
+(4,0) [1]: Portugal
+(4,1) [0]: --- neurona muerta ---
+(4,2) [0]: --- neurona muerta ---
+(4,3) [0]: --- neurona muerta ---
+(4,4) [0]: --- neurona muerta ---
+(4,5) [0]: --- neurona muerta ---
+(4,6) [0]: --- neurona muerta ---
+(4,7) [1]: Belgium
+(5,0) [0]: --- neurona muerta ---
+(5,1) [0]: --- neurona muerta ---
+(5,2) [0]: --- neurona muerta ---
+(5,3) [0]: --- neurona muerta ---
+(5,4) [0]: --- neurona muerta ---
+(5,5) [0]: --- neurona muerta ---
+(5,6) [0]: --- neurona muerta ---
+(5,7) [0]: --- neurona muerta ---
+(6,0) [0]: --- neurona muerta ---
+(6,1) [0]: --- neurona muerta ---
+(6,2) [0]: --- neurona muerta ---
+(6,3) [0]: --- neurona muerta ---
+(6,4) [0]: --- neurona muerta ---
+(6,5) [0]: --- neurona muerta ---
+(6,6) [0]: --- neurona muerta ---
+(6,7) [2]: Austria, Denmark
+(7,0) [1]: Spain
+(7,1) [2]: Finland, United Kingdom
+(7,2) [0]: --- neurona muerta ---
+(7,3) [0]: --- neurona muerta ---
+(7,4) [3]: Germany, Italy, Sweden
+(7,5) [0]: --- neurona muerta ---
+(7,6) [2]: Iceland, Ireland
+(7,7) [4]: Luxembourg, Netherlands, Norway, Switzerland

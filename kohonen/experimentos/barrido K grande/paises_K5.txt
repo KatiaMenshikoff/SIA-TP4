@@ -1,0 +1,25 @@
+(0,0) [1]: Spain
+(0,1) [2]: Finland, United Kingdom
+(0,2) [0]: --- neurona muerta ---
+(0,3) [2]: Germany, Italy
+(0,4) [5]: Iceland, Luxembourg, Norway, Sweden, Switzerland
+(1,0) [0]: --- neurona muerta ---
+(1,1) [0]: --- neurona muerta ---
+(1,2) [0]: --- neurona muerta ---
+(1,3) [0]: --- neurona muerta ---
+(1,4) [4]: Austria, Denmark, Ireland, Netherlands
+(2,0) [1]: Portugal
+(2,1) [0]: --- neurona muerta ---
+(2,2) [0]: --- neurona muerta ---
+(2,3) [0]: --- neurona muerta ---
+(2,4) [1]: Belgium
+(3,0) [0]: --- neurona muerta ---
+(3,1) [0]: --- neurona muerta ---
+(3,2) [0]: --- neurona muerta ---
+(3,3) [0]: --- neurona muerta ---
+(3,4) [1]: Czech Republic
+(4,0) [9]: Bulgaria, Croatia, Estonia, Greece, Hungary, Latvia, Lithuania, Poland, Ukraine
+(4,1) [1]: Slovakia
+(4,2) [0]: --- neurona muerta ---
+(4,3) [1]: Slovenia
+(4,4) [0]: --- neurona muerta ---

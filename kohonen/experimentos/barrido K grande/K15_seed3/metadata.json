@@ -1,0 +1,24 @@
+{
+  "K": 15,
+  "grilla": "rectangular",
+  "variables": [
+    "Area",
+    "GDP",
+    "Inflation",
+    "Life.expect",
+    "Military",
+    "Pop.growth",
+    "Unemployment"
+  ],
+  "iteraciones_corridas": 14000,
+  "config": {
+    "grilla": "rectangular",
+    "R_modo": "adaptativo",
+    "eta_inicial": 0.5,
+    "eta_modo": "adaptativo",
+    "iteraciones_mult": 500,
+    "K": 15,
+    "R_inicial": 15,
+    "seed": 3
+  }
+}

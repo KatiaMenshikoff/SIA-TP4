@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>SOM K=3 — Evolución por iteración</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 1100px;
+    margin: 2em auto;
+    padding: 0 1.5em;
+    color: #222;
+    line-height: 1.5;
+  }
+  h1 { margin-bottom: 0.2em; }
+  .lead { color: #555; margin-top: 0; }
+  .controls {
+    display: flex; align-items: center; gap: 1em;
+    margin: 1.5em 0 0.5em;
+    padding: 0.8em 1em;
+    background: #f5f5f7;
+    border-radius: 8px;
+  }
+  #slider { flex: 1; }
+  button {
+    padding: 0.4em 1em;
+    border: 1px solid #aaa;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  button:hover { background: #eee; }
+  .meta { font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+  .stats { font-family: ui-monospace, Menlo, monospace; font-size: 14px; margin: 0.8em 0; }
+  .row { display: flex; gap: 2em; justify-content: center; flex-wrap: wrap; }
+  .panel { text-align: center; }
+  .panel h3 { margin: 0 0 0.4em; font-size: 14px; color: #444; font-weight: 500; }
+  .legend { font-size: 11px; color: #777; margin-top: 0.4em; }
+  svg { display: block; margin: 0 auto; }
+  svg text { font-family: ui-monospace, Menlo, monospace; pointer-events: none; }
+  .country-list {
+    font-size: 12px;
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.8em 1em;
+    margin-top: 1.5em;
+    background: #fafafa;
+  }
+  .country-list div { margin: 0.15em 0; }
+  .country-list strong { color: #c44e52; }
+  .speed { font-size: 12px; }
+  .step-controls { display: flex; gap: 0.3em; }
+  details { margin-top: 1em; font-size: 13px; color: #555; }
+</style>
+</head>
+<body>
+
+<h1>SOM K=3 — evolución por iteración</h1>
+<p class="lead">
+  Heatmap de registros (izq) y matriz U (der). Slider avanza por iteraciones.
+  Sub-muestreo más denso al principio (cuando más cambia el SOM).
+</p>
+
+<div class="controls">
+  <button id="play">▶ play</button>
+  <div class="step-controls">
+    <button id="prev">◀</button>
+    <button id="next">▶</button>
+  </div>
+  <span class="meta" id="iterLabel">iter = 0</span>
+  <input id="slider" type="range" min="0" max="0" step="1" value="0">
+  <label class="speed">
+    velocidad
+    <select id="speed">
+      <option value="200">lento</option>
+      <option value="80" selected>normal</option>
+      <option value="30">rápido</option>
+    </select>
+  </label>
+</div>
+
+<div class="stats" id="stats">QE = -, neuronas muertas = -</div>
+
+<div class="row">
+  <div class="panel">
+    <h3>Registros por neurona</h3>
+    <svg id="counts" width="320" height="320"></svg>
+    <div class="legend">cuántos países caen en cada celda como BMU</div>
+  </div>
+  <div class="panel">
+    <h3>Matriz U</h3>
+    <svg id="umatrix" width="320" height="320"></svg>
+    <div class="legend">distancia promedio del peso a sus vecinas — oscuro = frontera</div>
+  </div>
+</div>
+
+<div class="country-list" id="countryList"></div>
+
+<details>
+  <summary>Config de esta corrida</summary>
+  <div id="configBox" class="meta"></div>
+</details>
+
+<script src="som_data.js"></script>
+<script>
+const K = SOM_DATA.K;
+const frames = SOM_DATA.frames;
+const totalIter = SOM_DATA.total_iter;
+const CELL = 300 / K;
+const PAD = 10;
+
+document.getElementById("configBox").innerHTML =
+  `K = ${K}, seed = ${SOM_DATA.seed}, R0 = ${SOM_DATA.R0}, η0 = ${SOM_DATA.eta0}, total iter = ${totalIter}<br>` +
+  `frames en el visor: ${frames.length}`;
+
+const slider = document.getElementById("slider");
+slider.max = frames.length - 1;
+
+const playBtn = document.getElementById("play");
+const prevBtn = document.getElementById("prev");
+const nextBtn = document.getElementById("next");
+const speedSel = document.getElementById("speed");
+let playing = false;
+let timer = null;
+
+// viridis-ish approximation (5 stops)
+const viridisStops = [
+  [68, 1, 84], [59, 82, 139], [33, 144, 141],
+  [93, 201, 99], [253, 231, 37]
+];
+function lerp(a, b, t) { return a + (b - a) * t; }
+function colorViridis(t) {
+  t = Math.max(0, Math.min(1, t));
+  const s = t * (viridisStops.length - 1);
+  const i = Math.min(Math.floor(s), viridisStops.length - 2);
+  const f = s - i;
+  const c = viridisStops[i].map((v, k) => Math.round(lerp(v, viridisStops[i+1][k], f)));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+function colorBoneR(t) {
+  // bone_r: low = casi blanco, high = oscuro (frontera)
+  t = Math.max(0, Math.min(1, t));
+  const v = Math.round(255 * (1 - t * 0.95));
+  const blueTint = Math.min(255, v + 15);
+  return `rgb(${v},${v},${blueTint})`;
+}
+
+function drawGrid(svgId, matrix, colorFn, fmt) {
+  const svg = document.getElementById(svgId);
+  svg.innerHTML = "";
+  const flat = matrix.flat();
+  const max = Math.max(...flat);
+  const min = Math.min(...flat);
+  const range = max - min || 1;
+  for (let i = 0; i < K; i++) {
+    for (let j = 0; j < K; j++) {
+      const v = matrix[i][j];
+      const norm = (v - min) / range;
+      const x = PAD + j * CELL;
+      const y = PAD + i * CELL;
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", x);
+      rect.setAttribute("y", y);
+      rect.setAttribute("width", CELL);
+      rect.setAttribute("height", CELL);
+      rect.setAttribute("fill", colorFn(norm));
+      rect.setAttribute("stroke", "#222");
+      rect.setAttribute("stroke-width", "0.5");
+      svg.appendChild(rect);
+      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text.setAttribute("x", x + CELL / 2);
+      text.setAttribute("y", y + CELL / 2 + 5);
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("font-size", "14");
+      text.setAttribute("fill", norm > 0.55 ? "white" : "black");
+      text.textContent = fmt(v);
+      svg.appendChild(text);
+    }
+  }
+}
+
+function render(idx) {
+  const f = frames[idx];
+  document.getElementById("iterLabel").textContent =
+    `iter = ${f.iter.toLocaleString()} / ${totalIter.toLocaleString()}`;
+  document.getElementById("stats").textContent =
+    `QE = ${f.qe.toFixed(3)}    neuronas muertas = ${f.dead} / ${K * K}`;
+  drawGrid("counts", f.counts, colorViridis, v => v);
+  drawGrid("umatrix", f.umatrix, colorBoneR, v => v.toFixed(2));
+
+  const list = document.getElementById("countryList");
+  const by = {};
+  for (const a of f.assignments) {
+    const key = `(${a.i},${a.j})`;
+    if (!by[key]) by[key] = [];
+    by[key].push(a);
+  }
+  // mostrar todas las celdas, incluso las muertas
+  let html = "";
+  for (let i = 0; i < K; i++) {
+    for (let j = 0; j < K; j++) {
+      const key = `(${i},${j})`;
+      const arr = by[key] || [];
+      if (arr.length === 0) {
+        html += `<div><strong>${key}</strong> [0]: <em>— neurona muerta —</em></div>`;
+      } else {
+        arr.sort((a, b) => a.dist - b.dist);
+        const names = arr.map(a => `${a.country} (${a.dist.toFixed(2)})`).join(", ");
+        html += `<div><strong>${key}</strong> [${arr.length}]: ${names}</div>`;
+      }
+    }
+  }
+  list.innerHTML = html;
+}
+
+slider.addEventListener("input", e => render(+e.target.value));
+prevBtn.addEventListener("click", () => {
+  slider.value = Math.max(0, +slider.value - 1);
+  render(+slider.value);
+});
+nextBtn.addEventListener("click", () => {
+  slider.value = Math.min(frames.length - 1, +slider.value + 1);
+  render(+slider.value);
+});
+
+function startPlay() {
+  if (timer) clearInterval(timer);
+  const ms = +speedSel.value;
+  timer = setInterval(() => {
+    let v = +slider.value;
+    v = v + 1;
+    if (v >= frames.length) {
+      v = 0; // loop
+    }
+    slider.value = v;
+    render(v);
+  }, ms);
+}
+playBtn.addEventListener("click", () => {
+  playing = !playing;
+  playBtn.textContent = playing ? "⏸ pause" : "▶ play";
+  if (playing) startPlay();
+  else if (timer) clearInterval(timer);
+});
+speedSel.addEventListener("change", () => { if (playing) startPlay(); });
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight") nextBtn.click();
+  else if (e.key === "ArrowLeft") prevBtn.click();
+  else if (e.key === " ") { e.preventDefault(); playBtn.click(); }
+});
+
+render(0);
+</script>
+</body>
+</html>

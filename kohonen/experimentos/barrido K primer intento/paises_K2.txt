@@ -1,0 +1,4 @@
+(0,0) [0]: --- neurona muerta ---
+(0,1) [12]: Bulgaria, Croatia, Estonia, Greece, Hungary, Latvia, Lithuania, Poland, Portugal, Slovakia, Slovenia, Ukraine
+(1,0) [15]: Austria, Belgium, Denmark, Finland, Germany, Iceland, Ireland, Italy, Luxembourg, Netherlands, Norway, Spain, Sweden, Switzerland, United Kingdom
+(1,1) [1]: Czech Republic
