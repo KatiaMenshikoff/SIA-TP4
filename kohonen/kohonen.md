@@ -89,6 +89,3 @@ Inicialización de los pesos: se toma una muestra al azar para cada neurona.
 Funcion modularizada para calcular el radio, depende de si se esta usando grilla o hexagonal.
 
 Convergencia/entrenamiento. Funcion para actualizacion de pesos basada en la funcion explicada en clase.
-
-# Experimentos
-## Analisis de K
