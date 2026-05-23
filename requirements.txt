@@ -1,0 +1,8 @@
+numpy
+pandas
+matplotlib
+seaborn
+jupyterlab
+nbconvert
+ipykernel
+python-pptx
