@@ -147,6 +147,9 @@ const clusters = [
   { id: "(2,2)", label: "post-comunistas en transición", color: "#ffb703", countries: ["Czech Republic", "Slovenia"] }
 ];
 
+// orden de display en la sidebar (la muerta va al final)
+const SIDEBAR_ORDER = ["(0,2)", "(2,0)", "(0,1)", "(1,1)", "(0,0)", "(2,1)", "(2,2)", "(1,0)", "(1,2)"];
+
 // alias para reconciliar nombres del GeoJSON
 const aliases = {
   "Czech Republic": ["Czech Republic", "Czechia"],
@@ -325,7 +328,10 @@ function focusCluster(clusterId, countryName) {
 function renderLegend() {
   const legendEl = document.getElementById("legend");
   legendEl.innerHTML = "";
-  clusters.forEach(c => {
+  const ordered = SIDEBAR_ORDER
+    .map(id => clusters.find(c => c.id === id))
+    .filter(Boolean);
+  ordered.forEach(c => {
     const div = document.createElement("div");
     div.className = "cluster";
     div.dataset.clusterId = c.id;
