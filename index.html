@@ -32,7 +32,7 @@
   .cluster:not(:has(em)):hover { border-color: #3a4451; cursor: pointer; }
   .cluster.highlight { border-color: #1f6feb; box-shadow: 0 0 0 2px rgba(31,111,235,0.35); background: #101a2c; }
   .cluster-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-  .swatch { width: 14px; height: 14px; border-radius: 3px; flex: 0 0 auto; border: 1px solid rgba(255,255,255,0.1); }
+  .swatch { width: 18px; height: 18px; min-width: 18px; min-height: 18px; border-radius: 3px; flex: 0 0 auto; border: 1px solid rgba(255,255,255,0.15); display: inline-block; }
   .cluster-title { font-weight: 600; font-size: 13px; }
   .cluster-count { color: var(--muted); font-size: 12px; margin-left: auto; }
   .country-list { font-size: 12px; color: var(--text); line-height: 1.55; }
@@ -90,12 +90,18 @@
     font-weight: 600;
     color: var(--text);
   }
-  .cluster-table tr.mean-row td:first-child {
+  .cluster-table tr.mean-row td:first-child,
+  .cluster-table tr.std-row td:first-child {
     font-style: italic;
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-size: 10px;
+  }
+  .cluster-table tr.std-row td {
+    background: #0b0d12;
+    color: var(--muted);
+    font-weight: 500;
   }
   .tooltip {
     position: absolute; pointer-events: none; padding: 6px 10px;
@@ -213,8 +219,9 @@ function detailTable(countries) {
     `;
   }).join("");
 
-  // fila de media del grupo
+  // filas de media y std del grupo
   let meanRow = "";
+  let stdRow = "";
   if (present.length > 0) {
     const means = {};
     VARS.forEach(v => {
@@ -232,6 +239,28 @@ function detailTable(countries) {
         <td>${fmt(means.Unemployment)}</td>
       </tr>
     `;
+
+    if (present.length >= 2) {
+      const stds = {};
+      VARS.forEach(v => {
+        const sumSq = present.reduce((s, c) => s + Math.pow(countryData[c][v] - means[v], 2), 0);
+        stds[v] = Math.sqrt(sumSq / (present.length - 1));
+      });
+      stdRow = `
+        <tr class="std-row">
+          <td>std grupo</td>
+          <td>${fmt(stds.Area)}</td>
+          <td>${fmt(stds.GDP)}</td>
+          <td>${fmt(stds.Inflation)}</td>
+          <td>${fmt(stds["Life.expect"])}</td>
+          <td>${fmt(stds.Military)}</td>
+          <td>${fmt(stds["Pop.growth"])}</td>
+          <td>${fmt(stds.Unemployment)}</td>
+        </tr>
+      `;
+    } else {
+      stdRow = `<tr class="std-row"><td>std grupo</td><td colspan="7">— (n=1)</td></tr>`;
+    }
   }
 
   return `
@@ -248,7 +277,7 @@ function detailTable(countries) {
           <th>Unemp</th>
         </tr>
       </thead>
-      <tbody>${rows}${meanRow}</tbody>
+      <tbody>${rows}${meanRow}${stdRow}</tbody>
     </table>
   `;
 }
