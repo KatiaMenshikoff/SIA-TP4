@@ -84,6 +84,19 @@
   }
   .cluster-table tbody tr:hover { background: #1a1f27; }
   .cluster-table tbody tr:last-child td { border-bottom: none; }
+  .cluster-table tr.mean-row td {
+    border-top: 1px solid var(--border);
+    background: #0b0d12;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .cluster-table tr.mean-row td:first-child {
+    font-style: italic;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 10px;
+  }
   .tooltip {
     position: absolute; pointer-events: none; padding: 6px 10px;
     background: #0b0d12; border: 1px solid var(--border); border-radius: 4px;
@@ -181,6 +194,8 @@ function compactRow(name) {
 }
 
 function detailTable(countries) {
+  const VARS = ["Area", "GDP", "Inflation", "Life.expect", "Military", "Pop.growth", "Unemployment"];
+  const present = countries.filter(c => countryData[c]);
   const rows = countries.map(name => {
     const d = countryData[name];
     if (!d) return `<tr><td>${name}</td><td colspan="7">—</td></tr>`;
@@ -197,6 +212,28 @@ function detailTable(countries) {
       </tr>
     `;
   }).join("");
+
+  // fila de media del grupo
+  let meanRow = "";
+  if (present.length > 0) {
+    const means = {};
+    VARS.forEach(v => {
+      means[v] = present.reduce((s, c) => s + countryData[c][v], 0) / present.length;
+    });
+    meanRow = `
+      <tr class="mean-row">
+        <td>media grupo</td>
+        <td>${fmt(means.Area)}</td>
+        <td>${fmt(means.GDP)}</td>
+        <td>${fmt(means.Inflation)}</td>
+        <td>${fmt(means["Life.expect"])}</td>
+        <td>${fmt(means.Military)}</td>
+        <td>${fmt(means["Pop.growth"])}</td>
+        <td>${fmt(means.Unemployment)}</td>
+      </tr>
+    `;
+  }
+
   return `
     <table class="cluster-table">
       <thead>
@@ -211,7 +248,7 @@ function detailTable(countries) {
           <th>Unemp</th>
         </tr>
       </thead>
-      <tbody>${rows}</tbody>
+      <tbody>${rows}${meanRow}</tbody>
     </table>
   `;
 }
