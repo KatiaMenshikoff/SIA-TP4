@@ -29,6 +29,7 @@
   .sidebar h1 { font-size: 16px; margin: 0 0 4px 0; }
   .sidebar .subtitle { color: var(--muted); font-size: 12px; margin-bottom: 18px; }
   .cluster { margin-bottom: 14px; padding: 10px 12px; background: #0e1116; border: 1px solid var(--border); border-radius: 6px; transition: border-color .25s ease, box-shadow .25s ease, background .25s ease; }
+  .cluster:not(:has(em)):hover { border-color: #3a4451; cursor: pointer; }
   .cluster.highlight { border-color: #1f6feb; box-shadow: 0 0 0 2px rgba(31,111,235,0.35); background: #101a2c; }
   .cluster-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
   .swatch { width: 14px; height: 14px; border-radius: 3px; flex: 0 0 auto; border: 1px solid rgba(255,255,255,0.1); }
@@ -262,6 +263,9 @@ function renderLegend() {
       </div>
       <div class="country-list">${list}</div>
     `;
+    if (!isDead) {
+      div.addEventListener("click", () => focusCluster(c.id));
+    }
     legendEl.appendChild(div);
   });
 }
