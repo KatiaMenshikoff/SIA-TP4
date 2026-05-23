@@ -105,10 +105,10 @@
     font-weight: 500;
   }
   .tooltip {
-    position: absolute; pointer-events: none; padding: 6px 10px;
+    position: fixed; pointer-events: none; padding: 6px 10px;
     background: #0b0d12; border: 1px solid var(--border); border-radius: 4px;
     font-size: 12px; color: var(--text); opacity: 0; transition: opacity .1s;
-    white-space: nowrap;
+    white-space: nowrap; z-index: 1000;
   }
   .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px; }
 </style>
@@ -197,6 +197,21 @@ const fmt = (n) => {
   return n.toLocaleString("en-US", { maximumFractionDigits: 2 });
 };
 
+// stats globales del dataset (las 28 muestras) para tooltips por columna
+const DATASET_STATS = (() => {
+  const VARS = ["Area", "GDP", "Inflation", "Life.expect", "Military", "Pop.growth", "Unemployment"];
+  const countries = Object.keys(countryData);
+  const stats = {};
+  VARS.forEach(v => {
+    const vals = countries.map(c => countryData[c][v]);
+    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const sumSq = vals.reduce((s, x) => s + (x - mean) ** 2, 0);
+    const std = Math.sqrt(sumSq / (vals.length - 1));
+    stats[v] = { mean, std };
+  });
+  return stats;
+})();
+
 function compactRow(name) {
   return `<div>${name}</div>`;
 }
@@ -210,13 +225,13 @@ function detailTable(countries) {
     return `
       <tr>
         <td>${name}</td>
-        <td>${fmt(d.Area)}</td>
-        <td>${fmt(d.GDP)}</td>
-        <td>${fmt(d.Inflation)}</td>
-        <td>${fmt(d["Life.expect"])}</td>
-        <td>${fmt(d.Military)}</td>
-        <td>${fmt(d["Pop.growth"])}</td>
-        <td>${fmt(d.Unemployment)}</td>
+        <td data-var="Area">${fmt(d.Area)}</td>
+        <td data-var="GDP">${fmt(d.GDP)}</td>
+        <td data-var="Inflation">${fmt(d.Inflation)}</td>
+        <td data-var="Life.expect">${fmt(d["Life.expect"])}</td>
+        <td data-var="Military">${fmt(d.Military)}</td>
+        <td data-var="Pop.growth">${fmt(d["Pop.growth"])}</td>
+        <td data-var="Unemployment">${fmt(d.Unemployment)}</td>
       </tr>
     `;
   }).join("");
@@ -232,13 +247,13 @@ function detailTable(countries) {
     meanRow = `
       <tr class="mean-row">
         <td>media grupo</td>
-        <td>${fmt(means.Area)}</td>
-        <td>${fmt(means.GDP)}</td>
-        <td>${fmt(means.Inflation)}</td>
-        <td>${fmt(means["Life.expect"])}</td>
-        <td>${fmt(means.Military)}</td>
-        <td>${fmt(means["Pop.growth"])}</td>
-        <td>${fmt(means.Unemployment)}</td>
+        <td data-var="Area">${fmt(means.Area)}</td>
+        <td data-var="GDP">${fmt(means.GDP)}</td>
+        <td data-var="Inflation">${fmt(means.Inflation)}</td>
+        <td data-var="Life.expect">${fmt(means["Life.expect"])}</td>
+        <td data-var="Military">${fmt(means.Military)}</td>
+        <td data-var="Pop.growth">${fmt(means["Pop.growth"])}</td>
+        <td data-var="Unemployment">${fmt(means.Unemployment)}</td>
       </tr>
     `;
 
@@ -251,13 +266,13 @@ function detailTable(countries) {
       stdRow = `
         <tr class="std-row">
           <td>std grupo</td>
-          <td>${fmt(stds.Area)}</td>
-          <td>${fmt(stds.GDP)}</td>
-          <td>${fmt(stds.Inflation)}</td>
-          <td>${fmt(stds["Life.expect"])}</td>
-          <td>${fmt(stds.Military)}</td>
-          <td>${fmt(stds["Pop.growth"])}</td>
-          <td>${fmt(stds.Unemployment)}</td>
+          <td data-var="Area">${fmt(stds.Area)}</td>
+          <td data-var="GDP">${fmt(stds.GDP)}</td>
+          <td data-var="Inflation">${fmt(stds.Inflation)}</td>
+          <td data-var="Life.expect">${fmt(stds["Life.expect"])}</td>
+          <td data-var="Military">${fmt(stds.Military)}</td>
+          <td data-var="Pop.growth">${fmt(stds["Pop.growth"])}</td>
+          <td data-var="Unemployment">${fmt(stds.Unemployment)}</td>
         </tr>
       `;
     } else {
@@ -270,13 +285,13 @@ function detailTable(countries) {
       <thead>
         <tr>
           <th>País</th>
-          <th>Area</th>
-          <th>GDP</th>
-          <th>Infl</th>
-          <th>Life</th>
-          <th>Mil</th>
-          <th>PopΔ</th>
-          <th>Unemp</th>
+          <th data-var="Area">Area</th>
+          <th data-var="GDP">GDP</th>
+          <th data-var="Inflation">Infl</th>
+          <th data-var="Life.expect">Life</th>
+          <th data-var="Military">Mil</th>
+          <th data-var="Pop.growth">PopΔ</th>
+          <th data-var="Unemployment">Unemp</th>
         </tr>
       </thead>
       <tbody>${rows}${meanRow}${stdRow}</tbody>
@@ -410,9 +425,8 @@ function drawGeo(geojson) {
       path.setAttribute("class", "country" + (cluster ? "" : " dim"));
       if (cluster) path.setAttribute("fill", cluster.color);
       path.addEventListener("mousemove", (e) => {
-        const rect = SVG.getBoundingClientRect();
-        tooltip.style.left = (e.clientX - rect.left + 12) + "px";
-        tooltip.style.top = (e.clientY - rect.top + 12) + "px";
+        tooltip.style.left = (e.clientX + 12) + "px";
+        tooltip.style.top = (e.clientY + 12) + "px";
         tooltip.style.opacity = 1;
         const cInfo = cluster ? ` — Neurona ${cluster.id}` : "";
         tooltip.textContent = name + cInfo;
@@ -446,6 +460,26 @@ function drawGeo(geojson) {
     SVG.appendChild(t);
   });
 }
+
+// tooltip de stats del dataset al hover sobre cualquier celda con data-var
+(() => {
+  const tt = document.getElementById("tt");
+  const sidebar = document.querySelector(".sidebar");
+  sidebar.addEventListener("mousemove", (e) => {
+    const cell = e.target.closest("[data-var]");
+    if (!cell) { tt.style.opacity = 0; return; }
+    const v = cell.dataset.var;
+    const s = DATASET_STATS[v];
+    if (!s) { tt.style.opacity = 0; return; }
+    tt.innerHTML =
+      `<b>${v}</b> &mdash; dataset<br>` +
+      `media: ${fmt(s.mean)} &nbsp;&nbsp; std: ${fmt(s.std)}`;
+    tt.style.left = (e.clientX + 14) + "px";
+    tt.style.top  = (e.clientY + 14) + "px";
+    tt.style.opacity = 1;
+  });
+  sidebar.addEventListener("mouseleave", () => { tt.style.opacity = 0; });
+})();
 
 const GEO_URL = "https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson";
 
