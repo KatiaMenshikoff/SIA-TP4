@@ -1,0 +1,15 @@
+{
+  "model_name": "oja_fix_1e-3",
+  "id_col": "Country",
+  "exclude_features": [],
+  "random_seed": 42,
+  "normalization": "zscore",
+  "training": {
+    "epochs": 2000,
+    "epsilon": 1e-8,
+    "learning_rate": {
+      "mode": "fixed",
+      "value": 0.001
+    }
+  }
+}

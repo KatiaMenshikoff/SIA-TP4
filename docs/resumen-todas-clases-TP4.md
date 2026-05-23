@@ -181,20 +181,76 @@ $\lVert w \rVert$ queda acotado, tiende a 1. Tras varias iteraciones converge al
 > 💬 **Profesor:** *"Ojo: acá no es que converge a la PC1, sino que converge el autovector asociado a la PC1; después yo puedo calcular la componente."*
 
 ### Tasa de aprendizaje
-Para asegurar convergencia, $\eta_0 = 1/(1{,}2\lambda_1)$. Como no se conoce $\lambda_1$ es preferible *estandarizar* las entradas y empezar con $\eta_0 \le 0{,}5$.
+Cota teórica de convergencia: $\eta_0 = 1/(1{,}2\lambda_1)$. Como $\lambda_1$ no se conoce, se **estandarizan** las entradas y se arranca con $\eta_0 \le 0{,}5$ (la profe sugiere verbalmente *"un poco menos"* de 0,5). Dos esquemas válidos:
+
+- **η adaptativo**: $\eta(0) = 0{,}5$ decreciente a lo largo de las épocas.
+- **η fijo chico**: $\eta = 10^{-3}$.
+
+> 💬 **Profesor:** *"Como no conozco el autovalor, lo que se hace es estandarizar todas las variables de entrada, correr la red con un η menor a 0,5, incluso un poco menos recomendaría, pero pruébenlo."*
+
+Se espera probar varios valores y reportar el comportamiento.
 
 ### Implementación
-Perceptrón simple con una capa de salida; pesos iniciales uniformes en [0, 1]; actualización por Oja; *η(0) = 0,5* decreciente o *η = 10⁻³*.
+- **Arquitectura**: perceptrón simple, una sola salida, **función de activación lineal** ($y = w^\top x$, sin $\theta$ no-lineal).
+- **Inicialización**: $w$ con distribución uniforme en $[0, 1]$.
+- **Entradas**: estandarizadas (media 0, desvío 1) — requisito explícito del slide del algoritmo.
+- **Modo**: *online* (un patrón por iteración, no batch). Por época se recorren las $M$ muestras una por una, actualizando $w$ después de cada muestra.
+- **Actualización** (regla de Oja, forma post-Taylor):
+
+$$\Delta w = \eta \cdot y \cdot (x - y \cdot w) \quad \equiv \quad \eta(O\,x_i^n - O^2\,w_i^n)$$
+
+- **Convergencia esperada**: $\lVert w \rVert \to 1$ y dirección estable entre épocas.
+- **Salida**: $w^{\text{final}} \approx$ autovector de PC1; la componente se reconstruye como $\text{PC1} = \sum_i w_i^{\text{final}} \cdot x_i$ (con $x$ estandarizadas). Puede salir con **signo opuesto** al de la librería — sigue siendo válido.
+
+> 💬 **Profesor:** *"La red de Oja es un perceptrón simple lineal con esta actualización de pesos. Básicamente ya tienen el código del perceptrón simple lineal: lo único que hay que hacer es cambiar cómo se actualizan los pesos."*
 
 ### Algoritmo (Oja)
+
+**Notación** (cuidado con el cruce de letras entre el slide 16 y el slide 7):
+
+- $M$ = cantidad de **muestras / patrones** (en `europe.csv`, los 28 países). En el slide aparece como `N`, pero conviene renombrar para evitar confusión.
+- $n$ = **dimensión de cada $x^\mu$** = nº de variables = nº de pesos (en `europe.csv`, 7: `Area`, `GDP`, `Inflation`, `Life.expect`, `Military`, `Pop.growth`, `Unemployment`).
+
+#### Versión vectorial (recomendada para implementar)
+
 ```
-input: X (media 0, dimensión N), eta, w ~ Uniforme[0,1]
+input: X (M muestras, n variables, estandarizadas), eta, w ~ Uniforme[0,1]^n
 for epoch in #epochs:
-    for i = 1..N:
-        y = inner(x_i, w)
-        w += eta * y * (x_i - y * w)   # regla de Oja
+    for mu = 1..M:                      # una muestra/país por iteración
+        y = w · x[mu]                   # escalar (producto interno)
+        w += eta * y * (x[mu] - y * w)  # actualización VECTORIAL de los n pesos
 return w
 ```
+
+#### Versión escalar equivalente (componente a componente)
+
+```
+for epoch in #epochs:
+    for mu = 1..M:
+        y = sum_j (w_j * x[mu]_j)       # un solo escalar por muestra
+        for j = 1..n:
+            w_j += eta * y * (x[mu]_j - y * w_j)
+```
+
+**Las dos formas son idénticas**: la línea `w += eta * y * (x - y*w)` ya hace el `for j` implícito con vectores.
+
+#### Lo importante: `y` se calcula UNA vez por muestra
+
+- ✅ **Correcto**: calcular $y = w \cdot x^\mu$ una vez con el $w$ actual, y después actualizar **todos los $w_j$ en paralelo** usando ese mismo $y$.
+- ❌ **Incorrecto**: actualizar $w_1$, recalcular $y$ con el nuevo $w_1$, después $w_2$, recalcular $y$ de nuevo, etc.
+
+Por eso conviene implementarlo vectorizado con `numpy`: garantiza que todos los $w_j$ ven el mismo $y$.
+
+#### Frecuencia de actualizaciones por época (ejemplo `europe.csv`: $M=28$, $n=7$)
+
+| Operación | Veces por época |
+|---|---|
+| Cálculo de $y$ (forward) | 28 (una por país) |
+| Actualización vectorial de $w$ | 28 |
+| Actualización escalar de un $w_j$ individual | $28 \times 7 = 196$ |
+| Pasadas completas por el dataset | 1 |
+
+Es **online / SGD por muestra**, no batch. El `+=` ocurre **dentro** del `for mu`, no después.
 
 ### Regla de Sanger
 Extensión de Oja. Converge a la **matriz de autovectores** de la matriz de covarianzas; permite encontrar las *k* componentes principales. *No se pide implementarla en el TP.*
