@@ -24,11 +24,11 @@ experimentos/
 
 **Resultado:**
 
-| K | QE (media) | % muertas | clusters efectivos |
-|---:|---:|---:|---:|
-| 2 | 2.32 | 30% | ~3 |
-| 3 | 2.10 | 36% | ~6 |
-| 4 | 1.99 | 50% | ~8 |
+|   K | QE (media) | % muertas | clusters efectivos |
+| --: | ---------: | --------: | -----------------: |
+|   2 |       2.32 |       30% |                 ~3 |
+|   3 |       2.10 |       36% |                 ~6 |
+|   4 |       1.99 |       50% |                 ~8 |
 
 **Hallazgo molesto:** subiendo K, el QE baja muy poco (14% de 2 a 4) y el % de neuronas muertas explota. Las celdas activas se concentran siempre **en las esquinas y bordes**, con un patrón cuadriculado de muertas en el centro.
 

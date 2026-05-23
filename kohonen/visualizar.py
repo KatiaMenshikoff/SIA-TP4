@@ -96,7 +96,9 @@ def plot_u_matrix(W, grid_type, out):
     for i in range(K):
         for j in range(K):
             ax.text(j, i, f"{U[i, j]:.2f}", ha="center", va="center",
-                    color="black", fontsize=8)
+                    color="black", fontsize=8,
+                    bbox=dict(facecolor="white", edgecolor="none",
+                              boxstyle="round,pad=0.25", alpha=0.85))
     ax.set_title("Matriz U (distancia promedio a vecinas)")
     ax.set_xticks(range(K))
     ax.set_yticks(range(K))
