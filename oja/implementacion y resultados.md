@@ -204,15 +204,15 @@ $\lambda_{\max} = 3.227166$ (idéntico a `SIA-PCA/Notas/autovalores_autovectores
 gracias al cambio a `ddof=1` — ver `explicacion_ddof_y_divergencia.md`).
 Autovector PC1 (signo alineado):
 
-| feature | $v_{\text{PCA}}$ | $w_{\text{oja}}$ (η var 0.2) | $w_{\text{oja}}$ (η fijo 10⁻³) |
-|---|---:|---:|---:|
-| Area         | −0.124874 | −0.125629 | −0.131830 |
-| GDP          | +0.500506 | +0.500433 | +0.499861 |
-| Inflation    | −0.406518 | −0.407256 | −0.413333 |
-| Life.expect  | +0.482873 | +0.483027 | +0.484318 |
-| Military     | −0.188112 | −0.187477 | −0.182369 |
-| Pop.growth   | +0.475704 | +0.475544 | +0.474207 |
-| Unemployment | −0.271656 | −0.271282 | −0.268260 |
+| feature      | $v_{\text{PCA}}$ | $w_{\text{oja}}$ (η var 0.2) | $w_{\text{oja}}$ (η fijo 10⁻³) |
+| ------------ | ---------------: | ---------------------------: | -----------------------------: |
+| Area         |        −0.124874 |                    −0.125629 |                      −0.131830 |
+| GDP          |        +0.500506 |                    +0.500433 |                      +0.499861 |
+| Inflation    |        −0.406518 |                    −0.407256 |                      −0.413333 |
+| Life.expect  |        +0.482873 |                    +0.483027 |                      +0.484318 |
+| Military     |        −0.188112 |                    −0.187477 |                      −0.182369 |
+| Pop.growth   |        +0.475704 |                    +0.475544 |                      +0.474207 |
+| Unemployment |        −0.271656 |                    −0.271282 |                      −0.268260 |
 
 Las diferencias son del orden $10^{-4}$ con η variable 0.2 y de $10^{-3}$
 con η fijo (peores en `Area` e `Inflation` para η fijo). La interpretación
