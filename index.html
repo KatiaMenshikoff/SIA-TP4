@@ -21,12 +21,15 @@
   .map svg { width: 100%; height: 100%; display: block; }
   .country { stroke: #0b0d12; stroke-width: 0.6; transition: filter .15s ease; }
   .country.dim { fill: var(--land-other); }
-  .country:hover { filter: brightness(1.25); cursor: default; }
+  .country:hover { filter: brightness(1.25); }
+  .country:not(.dim) { cursor: pointer; }
+  .country.selected { stroke: #fff; stroke-width: 1.4; filter: brightness(1.3); }
   .label { fill: #e6edf3; font-size: 11px; font-weight: 600; pointer-events: none; text-shadow: 0 0 4px #000, 0 0 4px #000; }
   .sidebar { background: var(--panel); border-left: 1px solid var(--border); overflow-y: auto; padding: 20px 22px; }
   .sidebar h1 { font-size: 16px; margin: 0 0 4px 0; }
   .sidebar .subtitle { color: var(--muted); font-size: 12px; margin-bottom: 18px; }
-  .cluster { margin-bottom: 14px; padding: 10px 12px; background: #0e1116; border: 1px solid var(--border); border-radius: 6px; }
+  .cluster { margin-bottom: 14px; padding: 10px 12px; background: #0e1116; border: 1px solid var(--border); border-radius: 6px; transition: border-color .25s ease, box-shadow .25s ease, background .25s ease; }
+  .cluster.highlight { border-color: #1f6feb; box-shadow: 0 0 0 2px rgba(31,111,235,0.35); background: #101a2c; }
   .cluster-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
   .swatch { width: 14px; height: 14px; border-radius: 3px; flex: 0 0 auto; border: 1px solid rgba(255,255,255,0.1); }
   .cluster-title { font-weight: 600; font-size: 13px; }
@@ -214,12 +217,34 @@ function detailTable(countries) {
 
 let viewMode = "compact";
 
+function focusCluster(clusterId, countryName) {
+  // resaltar tarjeta del cluster en la sidebar y scrollearla a la vista
+  document.querySelectorAll(".cluster.highlight").forEach(el => el.classList.remove("highlight"));
+  const target = document.querySelector(`.cluster[data-cluster-id="${clusterId}"]`);
+  if (target) {
+    target.classList.add("highlight");
+    target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  // resaltar el pais clickeado y todos sus hermanos del cluster
+  document.querySelectorAll(".country.selected").forEach(el => el.classList.remove("selected"));
+  const cluster = clusters.find(c => c.id === clusterId);
+  if (cluster) {
+    cluster.countries.forEach(c => {
+      const keys = aliases[c] || [c];
+      keys.forEach(k => {
+        document.querySelectorAll(`.country[data-country="${k}"]`).forEach(el => el.classList.add("selected"));
+      });
+    });
+  }
+}
+
 function renderLegend() {
   const legendEl = document.getElementById("legend");
   legendEl.innerHTML = "";
   clusters.forEach(c => {
     const div = document.createElement("div");
     div.className = "cluster";
+    div.dataset.clusterId = c.id;
     const isDead = c.countries.length === 0;
     let list;
     if (isDead) {
@@ -321,6 +346,10 @@ function drawGeo(geojson) {
         tooltip.textContent = name + cInfo;
       });
       path.addEventListener("mouseleave", () => { tooltip.style.opacity = 0; });
+      if (cluster) {
+        path.dataset.country = name;
+        path.addEventListener("click", () => focusCluster(cluster.id, name));
+      }
       SVG.appendChild(path);
     });
 
