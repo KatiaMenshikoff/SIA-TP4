@@ -126,7 +126,20 @@ Hexagonal vs rectangular es indistinguible para K=3 (la grilla es tan chica que 
 
 📁 `experimentos/config nueva K3 K5/`
 
-Aplicamos la config nueva (η₀ = 0.1, rectangular, resto igual al profe) a las dos K candidatas.
+Aplicamos la config nueva a las dos K candidatas. La configuración exacta usada:
+
+| Hiperparámetro          | Valor                            | Cambio vs recipe del profe |
+| ----------------------- | -------------------------------- | -------------------------- |
+| K                       | 3 y 5                            | (lo que se barre)          |
+| Grilla                  | rectangular                      | igual                      |
+| R inicial               | `R(0) = K` (3 o 5 según corrida) | igual                      |
+| Schedule de R           | adaptativo, lineal `R(0) → 1`    | igual                      |
+| η inicial               | **0.1**                          | ← **bajado de 0.5 a 0.1**  |
+| Schedule de η           | adaptativo, `η(i) = η₀ / i`      | igual                      |
+| Iteraciones             | `500 · N = 14 000`               | igual                      |
+| Inicialización de pesos | muestras del set al azar         | igual                      |
+| Semillas                | 10 por K                         | (estadística)              |
+| Estandarización         | z-score por columna              | igual                      |
 
 | K | QE | % muertas | clusters activos |
 |---:|---:|---:|---:|
