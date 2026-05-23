@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Mapa de clusters SOM — config nueva K3 K5</title>
+<title>Clusters para kohonen 3x3</title>
 <style>
   :root {
     color-scheme: dark;
@@ -97,7 +97,7 @@
     <div class="tooltip" id="tt"></div>
   </div>
   <aside class="sidebar">
-    <h1>Clusters SOM — config nueva K3 K5</h1>
+    <h1>Clusters para kohonen 3x3</h1>
     <div class="subtitle">Asignación de países por neurona en la grilla 3×3</div>
     <div class="toolbar">
       <button id="btn-compact" class="active">Compacto</button>
@@ -232,7 +232,7 @@ function renderLegend() {
     div.innerHTML = `
       <div class="cluster-header">
         <span class="swatch" style="background:${c.color}${isDead ? ';opacity:0.4' : ''}"></span>
-        <span class="cluster-title">Neurona ${c.id} — ${c.label}</span>
+        <span class="cluster-title">Neurona ${c.id}</span>
         <span class="cluster-count">${c.countries.length} país${c.countries.length===1?'':'es'}</span>
       </div>
       <div class="country-list">${list}</div>
@@ -317,7 +317,7 @@ function drawGeo(geojson) {
         tooltip.style.left = (e.clientX - rect.left + 12) + "px";
         tooltip.style.top = (e.clientY - rect.top + 12) + "px";
         tooltip.style.opacity = 1;
-        const cInfo = cluster ? ` — Neurona ${cluster.id} (${cluster.label})` : "";
+        const cInfo = cluster ? ` — Neurona ${cluster.id}` : "";
         tooltip.textContent = name + cInfo;
       });
       path.addEventListener("mouseleave", () => { tooltip.style.opacity = 0; });
