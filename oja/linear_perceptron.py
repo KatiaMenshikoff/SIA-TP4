@@ -147,8 +147,16 @@ def load_csv(csv_path: Path, config: dict) -> tuple[pd.DataFrame, list[str]]:
 # ----------------------------- Normalization -------------------------------- #
 
 def standardize(X: np.ndarray) -> np.ndarray:
-    """Z-score por columna (igual que kohonen/kohonen.py:28)."""
-    return (X - X.mean(axis=0)) / X.std(axis=0, ddof=0)
+    """Z-score por columna con ddof=1 (varianza muestral, divide por n-1).
+
+    Usamos ddof=1 para que la matriz de correlación X.T @ X / (n-1)
+    coincida EXACTAMENTE con la que calcula pandas `.corr()` en
+    SIA-PCA/pca_europe.py, y los autovalores de referencia sean los
+    mismos que en SIA-PCA/Notas/autovalores_autovectores.md.
+
+    (Difiere de kohonen/kohonen.py:28 que usa ddof=0, divisor n.)
+    """
+    return (X - X.mean(axis=0)) / X.std(axis=0, ddof=1)
 
 
 # ----------------------------- Learning rate schedule ----------------------- #

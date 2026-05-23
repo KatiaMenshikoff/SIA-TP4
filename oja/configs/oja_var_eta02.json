@@ -1,15 +1,15 @@
 {
-  "model_name": "oja_var_eta03",
+  "model_name": "oja_var_eta02",
   "id_col": "Country",
   "exclude_features": [],
   "random_seed": 42,
   "normalization": "zscore",
   "training": {
     "epochs": 2000,
-    "epsilon": 1e-08,
+    "epsilon": 1e-8,
     "learning_rate": {
       "mode": "variable",
-      "eta_0": 0.3,
+      "eta_0": 0.2,
       "schedule": "1/t"
     }
   }

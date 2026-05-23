@@ -2,7 +2,7 @@
   "model_name": "oja_var_eta05",
   "id_col": "Country",
   "exclude_features": [],
-  "random_seed": 7,
+  "random_seed": 42,
   "normalization": "zscore",
   "training": {
     "epochs": 2000,
