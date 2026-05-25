@@ -1,0 +1,10 @@
+fase,letra,ruido,iters,motivo,convergio_a,outcome,es_fijo,hamming_inicial,hamming_final,energia_inicial,energia_final
+exp1,F,0.0,1,stable,F,TP,True,0,0,-11.04,-11.04
+exp1,U,0.0,1,stable,U,TP,True,0,0,-11.04,-11.04
+exp1,Y,0.0,1,stable,Y,TP,True,0,0,-11.040000000000001,-11.040000000000001
+exp2_n10,F,0.1,2,stable,F,TP,False,1,0,-9.28,-11.04
+exp2_n20,F,0.2,2,stable,F,TP,False,5,0,-3.52,-11.04
+exp2_n10,U,0.1,2,stable,U,TP,False,2,0,-7.36,-11.04
+exp2_n20,U,0.2,2,stable,U,TP,False,6,0,-2.4000000000000004,-11.04
+exp2_n10,Y,0.1,2,stable,Y,TP,False,1,0,-9.12,-11.040000000000001
+exp2_n20,Y,0.2,2,stable,Y,TP,False,4,0,-4.48,-11.040000000000001

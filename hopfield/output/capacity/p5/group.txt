@@ -1,0 +1,3 @@
+p=5
+grupo=GMPVZ
+|<,>| medio=2.200

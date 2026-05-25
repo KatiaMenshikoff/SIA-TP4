@@ -1,0 +1,181 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{hyperref}
+
+\definecolor{verde}{HTML}{1f7a1f}
+\definecolor{rojo}{HTML}{b22222}
+\definecolor{azul}{HTML}{0b3d91}
+
+\newcommand{\W}{\mathbf{W}}
+\newcommand{\Smat}{\mathbf{S}}
+\newcommand{\Hen}{\mathcal{H}}
+
+\title{Simetría de Hopfield: por qué los complementos son estados estables}
+\author{SIA-TP4 — Aprendizaje No Supervisado}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Función de energía}
+
+La energía de una configuración $\Smat \in \{-1, +1\}^N$ en una red de Hopfield con pesos $\W \in \mathbb{R}^{N \times N}$ se define como:
+
+\[
+\Hen(\Smat) \;=\; -\frac{1}{2}\sum_{i,\,j} W_{ij}\, S_i\, S_j
+\]
+
+Donde la doble suma recorre todos los pares de neuronas. Como $\W$ es simétrica ($W_{ij} = W_{ji}$) y la diagonal está en cero ($W_{ii} = 0$), cada par $(i,j)$ con $i\neq j$ aparece dos veces y contribuye con $W_{ij}\, S_i\, S_j$ en ambos sentidos.
+
+\section*{Invariancia ante $\Smat \to -\Smat$}
+
+Reemplazo $\Smat$ por su complemento $-\Smat$ (todos los píxeles invertidos):
+
+\begin{align*}
+\Hen(-\Smat)
+  &= -\frac{1}{2}\sum_{i,j} W_{ij}\,(-S_i)(-S_j) \\
+  &= -\frac{1}{2}\sum_{i,j} W_{ij}\,S_i\,S_j \\
+  &= \Hen(\Smat).
+\end{align*}
+
+La doble negación se cancela: $(-1)\cdot(-1) = +1$. Por lo tanto $\Hen$ es \textbf{invariante} ante el cambio global de signo del estado.
+
+\paragraph{Consecuencia.} Cualquier mínimo local $\Smat^{*}$ tiene un mínimo gemelo $-\Smat^{*}$ con exactamente la misma energía. El paisaje de energía es simétrico respecto del origen, como un par de pozos espejados.
+
+\section*{Misma simetría en la regla de actualización}
+
+La actualización síncrona es $\Smat_{t+1} = \operatorname{sign}(\W\,\Smat_t)$. Si $\xi$ es un estable, entonces $\operatorname{sign}(\W\,\xi) = \xi$, y:
+
+\[
+\operatorname{sign}\bigl(\W \cdot (-\xi)\bigr) \;=\; \operatorname{sign}(-\W\,\xi) \;=\; -\operatorname{sign}(\W\,\xi) \;=\; -\xi.
+\]
+
+Por cada patrón almacenado $\xi^{\mu}$, su complemento $-\xi^{\mu}$ también es estable. Con $p$ patrones almacenados, la red tiene $2p$ estados estables garantizados por esta simetría (más los espurios “mezcla” que aparezcan).
+
+\section*{El término $W_{ij}\, S_i\, S_j$ en detalle}
+
+El argumento de la simetría se entiende mejor mirando un único término de la suma. El producto $S_i\,S_j$ solo puede tomar dos valores, según si las neuronas $i$ y $j$ están en el mismo estado o no:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\centering\arraybackslash}m{2.2cm} >{\centering\arraybackslash}m{2.2cm} >{\centering\arraybackslash}m{2.5cm} >{\centering\arraybackslash}m{4cm}}
+\toprule
+$S_i$ & $S_j$ & $S_i\,S_j$ & Término $W_{ij}\,S_i\,S_j$ \\
+\midrule
+$+1$ & $+1$ & $+1$ & $+W_{ij}$ \\
+$-1$ & $-1$ & $+1$ & $+W_{ij}$ \\
+\midrule
+$+1$ & $-1$ & $-1$ & $-W_{ij}$ \\
+$-1$ & $+1$ & $-1$ & $-W_{ij}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Lectura.} Hay dos casos:
+
+\begin{itemize}
+\item Si $S_i$ y $S_j$ están \textcolor{verde}{\textbf{alineados}} (ambos $+1$ o ambos $-1$), el término aporta $+W_{ij}$.
+\item Si están \textcolor{rojo}{\textbf{anti-alineados}} (uno $+1$, otro $-1$), aporta $-W_{ij}$.
+\end{itemize}
+
+El término solo depende de la \emph{compatibilidad relativa} entre $S_i$ y $S_j$, no de sus signos absolutos. Si das vuelta los dos factores a la vez ($S_i \to -S_i$ y $S_j \to -S_j$), $S_i\,S_j$ no cambia. Por eso, cuando complementás \emph{toda} la red, cada término $W_{ij}\,S_i\,S_j$ queda exactamente igual, y la suma global —que es $-2\,\Hen$— también.
+
+\section*{Ejemplo concreto ($N = 4$)}
+
+Un único patrón almacenado:
+
+\[
+\Smat^{*} \;=\; \begin{pmatrix} +1 \\ +1 \\ -1 \\ +1 \end{pmatrix},
+\qquad
+-\Smat^{*} \;=\; \begin{pmatrix} -1 \\ -1 \\ +1 \\ -1 \end{pmatrix}.
+\]
+
+Pesos construidos con la regla de Hebb $\W = \frac{1}{N}\,\Smat^{*}\,\Smat^{*\,\top}$ y diagonal puesta en cero:
+
+\[
+\W \;=\; \frac{1}{4}\begin{pmatrix}
+0 & +1 & -1 & +1 \\
++1 & 0 & -1 & +1 \\
+-1 & -1 & 0 & -1 \\
++1 & +1 & -1 & 0
+\end{pmatrix}
+\;=\;
+\begin{pmatrix}
+0 & +0{,}25 & -0{,}25 & +0{,}25 \\
++0{,}25 & 0 & -0{,}25 & +0{,}25 \\
+-0{,}25 & -0{,}25 & 0 & -0{,}25 \\
++0{,}25 & +0{,}25 & -0{,}25 & 0
+\end{pmatrix}.
+\]
+
+Calculando energía y aplicando la regla:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l c c}
+\toprule
+Estado & $\Hen(\cdot)$ & $\operatorname{sign}(\W\cdot\,\cdot)$ \\
+\midrule
+$\Smat^{*} = (+1,+1,-1,+1)$ & $\mathbf{-1{,}50}$ & $\Smat^{*}$ \quad\textcolor{verde}{(estable)} \\
+$-\Smat^{*} = (-1,-1,+1,-1)$ & $\mathbf{-1{,}50}$ & $-\Smat^{*}$ \quad\textcolor{verde}{(estable)} \\
+$(+1,-1,+1,-1)$ \;(arbitrario) & $0{,}00$ & no es estable \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Los dos estados (patrón y complemento) tienen la misma energía $-1{,}5$, y ambos son estados estables. \textbf{La única decisión humana fue almacenar $\Smat^{*}$}; el complemento aparece solo, como consecuencia de la simetría de $\W$.
+
+\section*{Visualización del paisaje}
+
+\begin{center}
+\begin{tikzpicture}[scale=1.2]
+  % Doble pozo simétrico: f(x) = 0.05*(x^2 - 5.76)^2 - 1.5
+  % En x=±2.4 → f = -1.5 (fondo de los pozos)
+  % En x=0   → f = 0.05*33.18 - 1.5 ≈ 0.16 (cima en el medio)
+  \draw[thick, azul, smooth, samples=300, domain=-3.8:3.8]
+    plot (\x, {0.05*(\x*\x - 5.76)*(\x*\x - 5.76) - 1.5});
+  % Eje x (espacio de estados)
+  \draw[->, thick] (-4.2, -1.8) -- (4.2, -1.8) node[right] {$\Smat$};
+  % Eje y (energía)
+  \draw[->, thick] (-4, -1.85) -- (-4, 1.5) node[above] {$\Hen(\Smat)$};
+  % Marcador del cero del eje x
+  \draw (0, -1.75) -- (0, -1.85) node[below] {$\mathbf{0}$};
+  % Marcadores de los dos pozos (fondo de cuencas) en y = -1.5
+  \filldraw[verde] (-2.4, -1.5) circle (3pt);
+  \filldraw[verde] ( 2.4, -1.5) circle (3pt);
+  \node[verde, below] at (-2.4, -1.5) {$-\Smat^{*}$};
+  \node[verde, below] at ( 2.4, -1.5) {$\Smat^{*}$};
+  % Línea punteada uniendo los dos pozos a la misma altura
+  \draw[dashed, gray] (-2.4, -1.5) -- (2.4, -1.5);
+  \node[gray, above] at (0, -1.55) {misma $\Hen$};
+  % Punto del estado arbitrario en una loma cerca del centro
+  % En x=0.7: f = 0.05*(0.49-5.76)^2 - 1.5 = 0.05*27.77 - 1.5 ≈ -0.11
+  \filldraw[rojo] (0.7, -0.11) circle (3pt);
+  \node[rojo, right] at (0.85, -0.05) {estado arbitrario};
+  % Flechas indicando la cuenca de atracción
+  \draw[->, thick, gray!70] (-1.2, -0.5) -- (-2.0, -1.3);
+  \draw[->, thick, gray!70] ( 1.2, -0.5) -- ( 2.0, -1.3);
+\end{tikzpicture}
+\end{center}
+
+Las dos cuencas son espejos una de la otra. Cualquier input con $p_{\mathrm{flip}} < 0{,}5$ cae en la cuenca de $\Smat^{*}$; con $p_{\mathrm{flip}} > 0{,}5$ cae en la cuenca de $-\Smat^{*}$. El input está más cerca, en Hamming, del complemento que del original.
+
+\section*{Implicancia para los experimentos del TP}
+
+En los CSV el complemento queda etiquetado como \texttt{outcome=Espurio}, porque la definición operativa de “espurio” es \emph{“no es ninguno de los patrones almacenados”}. Esto es correcto. Pero conviene tener presente:
+
+\begin{itemize}
+  \item El complemento no es un espurio “accidental”: aparece \emph{garantizado} por la simetría de $\Hen$.
+  \item Para la consigna 2.1.b (identificar un estado espúreo) preferimos destacar un caso de \emph{mezcla}, con $\operatorname{hamming}$ intermedio respecto de todos los almacenados, en vez de un complemento puro (\texttt{hamming\_final = 25} contra el original).
+  \item Si en alguna slide aparece un complemento, alcanza con mencionar la simetría de $\Hen$ sin necesidad de profundizar.
+\end{itemize}
+
+\end{document}

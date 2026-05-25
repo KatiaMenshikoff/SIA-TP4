@@ -35,28 +35,28 @@ Todo este análisis está en el notebook `ortogonalidad_letras.ipynb` (replica e
 
 Implementación a mano (un archivo `hopfield.py` con clase `Hopfield`):
 
-- **Pesos**: `W = (1/N) · K · K^T` donde `K` es la matriz `(p, N)` con los `p` patrones en columnas y `N = 25`. Se calcula **una sola vez**.
-- Forzar `W` simétrica y `np.fill_diagonal(W, 0)` (no hay conexión consigo misma).
+- **Pesos**: `W = (1/N) · K · K^T` donde `K` tiene a cada patrón almacenado como columna. Notación de shape:
+  - `N` = dimensión del patrón = 25 (5×5 aplanado, una entrada por neurona).
+  - `p` = cantidad de patrones almacenados = 4.
+  - `shape (N, p)` significa una matriz con `N` filas y `p` columnas, o sea `25 × 4`: cada columna es un patrón completo (25 píxeles) y hay 4 columnas (una por letra).
+  - Entonces `K · K^T` tiene shape `(N, p) · (p, N) = (N, N) = 25 × 25`. Esa es la matriz de pesos: una fila/columna por neurona, con `W_ij` = peso de la conexión entre la neurona `i` y la neurona `j`.
+  - Si preferís armar `K` con patrones por **fila** (shape `(p, N) = 4 × 25`, más natural en numpy), la fórmula equivalente es `W = (K_filas.T @ K_filas) / N`.
+  - `W` se calcula **una sola vez**, antes de empezar a iterar.
+- `W` sale **simétrica por construcción** (`W_ij = W_ji` porque `ξ_i·ξ_j = ξ_j·ξ_i`, o equivalente `(K·K^T)^T = K·K^T`). Lo único que hay que hacer a mano es `np.fill_diagonal(W, 0)`: sin esto la diagonal queda en 1, y el modelo no admite conexión de una neurona consigo misma.
 - **Actualización síncrona** del estado: `S_{t+1} = sign(W · S_t)`, con la convención de que `sign(0) = S_t[i]` (mantener estado previo cuando `h_i = 0`).
 - **Inicialización**: `S_0 = patrón_de_consulta` (puede ser uno ruidoso).
 - **Condición de corte**: cuando `S_{t+1} == S_t` → estado estable. Guardar también el caso `S_{t+2} == S_t` para detectar **ciclos** (2-ciclos son los más típicos en sincronica).
 - **Límite de iteraciones**: poner un tope (ej. 50) para no quedar en loop infinito.
 - Devolver `(estado_final, lista_de_estados_intermedios, motivo_corte)` para poder graficar la trayectoria y evaluar qué pasó.
 
-### 4. Función de energía
-
-- `H(S) = -1/2 · Σ_{i,j} W_{ij} · S_i · S_j` (Euge la mostró así). Equivalente: `-0.5 * S @ W @ S`.
-- **Propiedad clave**: en cada iteración la energía **decrece o se mantiene constante**, nunca aumenta. Esto se demuestra en clase: si `S_i` cambia de signo, `ΔH = 2 · S_i_nuevo · Σ W_ij · S_j · (-1)` queda negativo; si no cambia, `ΔH = 0`.
-- **Gráfico**: para cada consulta, graficar `H(S_t)` vs iteración. Debería verse una curva monótonamente decreciente que se estabiliza. Es prueba visual de que la red está bien implementada.
-
-### 5. Análisis de ruido
+### 4. Análisis de ruido
 
 Generar patrones ruidosos a partir de los almacenados:
 
 - Función `noise_transform(pattern, noise_level)` que da vuelta cada pixel con probabilidad `noise_level` (0 a 1).
 - Para cada nivel de ruido (ej. 0%, 5%, 10%, ..., 50%), correr varias muestras (ej. 50 por nivel, con seeds distintas) y medir métricas.
 
-### 6. Métricas custom
+### 5. Métricas custom
 
 Euge sugirió armar métricas tipo TP/FP/TN/FN, decididas por nosotros. Propuesta:
 

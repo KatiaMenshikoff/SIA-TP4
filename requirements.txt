@@ -6,3 +6,4 @@ jupyterlab
 nbconvert
 ipykernel
 python-pptx
+tabulate

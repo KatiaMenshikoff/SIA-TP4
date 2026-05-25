@@ -1,0 +1,5 @@
+letra,iters,motivo,convergio_a,outcome,es_fijo,energia_inicial,energia_final
+G,1,stable,G,TP,True,-10.559999999999999,-10.559999999999999
+R,1,stable,R,TP,True,-10.56,-10.56
+T,1,stable,T,TP,True,-10.56,-10.56
+V,1,stable,V,TP,True,-10.56,-10.56

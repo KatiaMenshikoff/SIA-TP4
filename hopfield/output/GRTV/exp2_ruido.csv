@@ -1,0 +1,13 @@
+letra_objetivo,ruido,seed,iters,motivo,convergio_a,outcome,hamming_inicial,hamming_final,energia_inicial,energia_final
+G,0.1,1,2,stable,G,TP,1,0,-8.96,-10.559999999999999
+G,0.2,1,2,stable,G,TP,5,0,-3.04,-10.559999999999999
+G,0.65,1,4,stable,,Espurio,14,25,1.6,-10.559999999999999
+R,0.1,1,2,stable,R,TP,3,0,-6.4,-10.56
+R,0.2,1,2,stable,R,TP,3,0,-5.76,-10.56
+R,0.65,1,5,stable,,Espurio,17,12,-0.64,-10.56
+T,0.1,1,1,stable,T,TP,0,0,-10.56,-10.56
+T,0.2,1,2,stable,T,TP,4,0,-4.32,-10.56
+T,0.65,1,3,stable,,Espurio,17,25,-0.48000000000000015,-10.56
+V,0.1,1,3,stable,V,TP,4,0,-4.96,-10.56
+V,0.2,1,3,stable,V,TP,8,0,-0.8,-10.56
+V,0.65,1,3,stable,,Espurio,16,12,-1.7600000000000005,-10.56

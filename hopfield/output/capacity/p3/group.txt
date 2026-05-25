@@ -1,0 +1,3 @@
+p=3
+grupo=FUY
+|<,>| medio=1.000

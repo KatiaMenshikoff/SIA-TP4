@@ -1,0 +1,6 @@
+letra_query,tipo,max_inner_product,mas_parecida_a,iters,motivo,convergio_a,outcome,energia_inicial,energia_final
+P,similar,21,R,2,stable,R,MatchAlmacenado,-7.68,-10.879999999999999
+A,similar,17,R,3,stable,R,MatchAlmacenado,-5.92,-10.879999999999999
+S,distinta,7,X,5,stable,,Espurio,0.32000000000000006,-10.559999999999999
+I,distinta,5,J,5,stable,J,MatchAlmacenado,0.96,-10.719999999999999
+V,distinta,5,L,6,stable,,Espurio,0.9600000000000002,-8.16

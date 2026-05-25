@@ -1,0 +1,3 @@
+p=2
+grupo=AL
+|<,>| medio=1.000
