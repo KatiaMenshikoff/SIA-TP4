@@ -143,12 +143,40 @@ def main():
                             "group": group, "letter": letter,
                             "noise": noise, "sample_idx": sample_idx,
                         })
-                        # trajectories / io_patterns: en Task 3
-                        pass
+                        # Trajectories: una fila por estado visitado
+                        for it, (state, energy) in enumerate(
+                            zip(res["history"], res["energies"])
+                        ):
+                            row = {
+                                "group": group, "letter": letter,
+                                "noise": noise, "sample_idx": sample_idx,
+                                "iter": it, "energia": energy,
+                            }
+                            for j, v in enumerate(state):
+                                row[f"s_{j}"] = int(v)
+                            traj_rows.append(row)
+                        # IO patterns: input/output pixel a pixel
+                        for j in range(res["query"].shape[0]):
+                            iox_rows.append({
+                                "group": group, "letter": letter,
+                                "noise": noise, "sample_idx": sample_idx,
+                                "pixel": j,
+                                "input": int(res["query"][j]),
+                                "output": int(res["final"][j]),
+                            })
 
     df_trials = pd.DataFrame(trials_rows)
     df_trials.to_csv(out_dir / "trials.csv", index=False)
     print(f"trials.csv: {len(df_trials)} filas")
+
+    pd.DataFrame(repr_rows).to_csv(out_dir / "representatives.csv", index=False)
+    print(f"representatives.csv: {len(repr_rows)} filas")
+
+    pd.DataFrame(traj_rows).to_csv(out_dir / "trajectories.csv", index=False)
+    print(f"trajectories.csv: {len(traj_rows)} filas")
+
+    pd.DataFrame(iox_rows).to_csv(out_dir / "io_patterns.csv", index=False)
+    print(f"io_patterns.csv: {len(iox_rows)} filas")
 
 
 if __name__ == "__main__":
