@@ -16,13 +16,13 @@ Spec completa:
 
 ## Setup
 
-| parámetro                 | valor                                                                              |
-| ------------------------- | ---------------------------------------------------------------------------------- |
-| Grupos                    | `GRTV`, `JLRX`, `AJKU`, `BDOX`, `HMNW`                                             |
-| Niveles de ruido          | 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65       |
-| Samples por configuración | 30                                                                                 |
-| Seed                      | `1 + sample_idx` (compartido entre niveles de ruido)                               |
-| Trials totales            | 5 × 4 × 13 × 30 = **7800**                                                         |
+| parámetro                 | valor                                                                        |
+| ------------------------- | ---------------------------------------------------------------------------- |
+| Grupos                    | `GRTV`, `JLRX`, `AJKU`, `BDOX`, `HMNW`                                       |
+| Niveles de ruido          | 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65 |
+| Samples por configuración | 30                                                                           |
+| Seed                      | `1 + sample_idx` (compartido entre niveles de ruido)                         |
+| Trials totales            | 5 × 4 × 13 × 30 = **7800**                                                   |
 
 **Diseño del seed.** El seed depende solo de `sample_idx`, no del nivel de
 ruido. Como `add_noise` usa `rng.random(shape) < p_flip`, el mismo draw
@@ -37,13 +37,13 @@ naturalmente en la jerarquía.
 
 Cada trial se etiqueta con uno de 5 buckets:
 
-| outcome        | qué pasó                                                                          |
-| -------------- | --------------------------------------------------------------------------------- |
-| **TP**         | La red converge al patrón target (recuperación correcta).                         |
-| **FP**         | La red converge a otro patrón almacenado del grupo.                               |
-| **COMPLEMENT** | La red converge a `-ξ_k` para algún `k` (estado espurio "anti-patrón").           |
-| **FN**         | Estable, no es ningún almacenado ni complemento (espurio mixto).                  |
-| **CICLO**      | No converge a punto fijo (incluye `reason == "cycle"` y `reason == "max_iter"`).  |
+| outcome        | qué pasó                                                                         |
+| -------------- | -------------------------------------------------------------------------------- |
+| **TP**         | La red converge al patrón target (recuperación correcta).                        |
+| **FP**         | La red converge a otro patrón almacenado del grupo.                              |
+| **COMPLEMENT** | La red converge a `-ξ_k` para algún `k` (estado espurio "anti-patrón").          |
+| **FN**         | Estable, no es ningún almacenado ni complemento (espurio mixto).                 |
+| **CICLO**      | No converge a punto fijo (incluye `reason == "cycle"` y `reason == "max_iter"`). |
 
 **TN no aplica** acá: todos los inputs son patrones almacenados con ruido,
 nunca letras externas. Si queremos medir rechazo (input = letra no

@@ -26,7 +26,65 @@ Convención de paleta (consistente en todos los plots):
 
 ---
 
-## 1. Comparación entre grupos
+## 1. Vista general del experimento
+
+Antes de entrar en las comparaciones, dos plots que resumen "qué pasó"
+sobre los 7800 trials.
+
+### Distribución global de outcomes — [`outcomes_global_bar.png`](plots/outcomes_global_bar.png)
+
+![](plots/outcomes_global_bar.png)
+
+Barras horizontales con el conteo y porcentaje de cada outcome sobre el
+total de 7800 trials, ranqueadas de mayor a menor:
+
+| outcome    |     n |     % |
+| ---------- | ----: | ----: |
+| TP         | 2 951 | 37.8% |
+| FP         | 1 805 | 23.1% |
+| COMPLEMENT | 1 715 | 22.0% |
+| CICLO      |   828 | 10.6% |
+| FN         |   501 |  6.4% |
+
+**Lecturas claves**:
+
+- TP es el outcome más frecuente (~38%), pero **NO es mayoría**: en más
+  de 6 de cada 10 trials la red falla de algún modo.
+- Las dos categorías más "estructuradas" (FP y COMPLEMENT) suman 45%:
+  la red casi siempre cae en algún atractor reconocible (un almacenado
+  o su antipodal), no en basura aleatoria.
+- FN es marginal (6%) y CICLO es relativamente raro (11%) — el paisaje
+  de energía está bastante poblado de atractores nítidos.
+
+Este dato global combina todos los niveles de ruido (incluso 0.65 donde
+TP es ~1%), así que el 37.8% global sub-representa lo que pasa en el
+régimen útil (ruido ≤ 0.30, donde TP > 50%).
+
+### Outcomes por nivel de ruido — [`outcomes_table_by_noise.png`](plots/outcomes_table_by_noise.png)
+
+![](plots/outcomes_table_by_noise.png)
+
+Tabla con los 13 niveles de ruido como filas y los 5 outcomes como
+columnas (cada fila tiene 600 trials = 5 grupos × 4 letras × 30 samples).
+Cada celda está tinteada por intensidad dentro de su columna — el
+color saturado indica el nivel de ruido donde ese outcome es más
+frecuente.
+
+Se ve a simple vista que cada outcome tiene su "pico" en distinto
+régimen:
+
+- **TP** domina en ruido bajo (max en 0.05, decae monótono).
+- **FP** crece hasta ~0.40 (la red sigue convergiendo a *algún*
+  almacenado, pero la corrupción crece) y luego cae.
+- **CICLO** pico en 0.50 (zona ambigua entre atractores) y baja
+  hacia los extremos.
+- **COMPLEMENT** explota a partir de 0.40 y domina absolutamente en
+  ≥0.55.
+- **FN** crece monótono pero nunca llega a dominar.
+
+---
+
+## 2. Comparación entre grupos
 
 ### Curvas tasa_TP vs ruido — [`tp_curves_by_group.png`](plots/tp_curves_by_group.png)
 
@@ -74,7 +132,7 @@ los grupos están dominados por COMPLEMENT (≥60%).
 
 ---
 
-## 2. Distribución completa de outcomes
+## 3. Distribución completa de outcomes por grupo
 
 ### Global — [`outcomes_stacked_global.png`](plots/outcomes_stacked_global.png)
 
@@ -109,7 +167,7 @@ que:
 
 ---
 
-## 3. Por grupo: outcomes por letra
+## 4. Por grupo: outcomes por letra
 
 Cada grupo tiene su propio plot mostrando las 4 letras almacenadas como
 columnas, cada una con su barra apilada por ruido (13 barras). Permite
@@ -129,7 +187,7 @@ porque `N` es la que tiene producto interno más bajo con las otras tres.
 
 ---
 
-## 4. Grillas de overlays input/output
+## 5. Grillas de overlays input/output
 
 Una imagen por grupo con las 4 letras × **13 niveles de ruido** del
 trial **representante** (sample_idx=0). Cada celda muestra el overlay del
@@ -172,7 +230,7 @@ frecuentemente equivocado.
 
 ---
 
-## 5. Trayectorias de energía
+## 6. Trayectorias de energía
 
 [`energy_longest_per_group.png`](plots/energy_longest_per_group.png) —
 para cada grupo elegí el representante que **más iteraciones tardó** en
@@ -191,15 +249,19 @@ atractor donde la red se asentó.
 
 Priorizando por valor expositivo:
 
-1. **`tp_curves_by_group.png`** — el plot money: muestra que la elección de
+1. **`outcomes_global_bar.png`** — abre con la foto general: "qué hace
+   Hopfield en este experimento" en una sola figura.
+2. **`tp_curves_by_group.png`** — el plot money: muestra que la elección de
    grupo importa, que el ruido degrada gradualmente, y los tres regímenes
    (meseta / caída / colapso).
-2. **`outcomes_stacked_by_group.png`** — narra la historia completa:
-   por qué falla la red, no solo cuánto falla.
-3. **Un `<grupo>_overlay_grid.png`** del peor grupo (`HMNW`) — visual,
+3. **`outcomes_table_by_noise.png`** — la tabla coloreada muestra de un
+   vistazo *dónde* gana cada outcome a lo largo del rango de ruido.
+4. **`outcomes_stacked_by_group.png`** — descomposición por grupo: por qué
+   falla la red, no solo cuánto falla.
+5. **Un `<grupo>_overlay_grid.png`** del peor grupo (`HMNW`) — visual,
    muestra el "flip al complemento" emergiendo a ruido alto.
-4. **`heatmap_tp.png`** si necesitás citar números puntuales.
-5. **`energy_longest_per_group.png`** si querés mostrar la propiedad de
+6. **`heatmap_tp.png`** si necesitás citar números puntuales.
+7. **`energy_longest_per_group.png`** si querés mostrar la propiedad de
    energía decreciente.
 
 Los `<grupo>_outcomes_by_letter.png` son útiles si querés profundizar en

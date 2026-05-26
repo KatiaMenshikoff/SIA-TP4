@@ -21,10 +21,11 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.colors import ListedColormap
+from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 
 
 GROUPS = ["GRTV", "JLRX", "AJKU", "BDOX", "HMNW"]
@@ -322,6 +323,145 @@ def plot_outcomes_by_letter_for_group(
 
 
 # ---------------------------------------------------------------------------
+# Distribución global y tabla de outcomes por ruido
+# ---------------------------------------------------------------------------
+
+def plot_outcomes_global_bar(trials: pd.DataFrame, out_dir: Path) -> None:
+    """Barras horizontales con la distribución global de outcomes (todos los trials)."""
+    counts = trials["outcome"].value_counts()
+    counts = counts.reindex(OUTCOMES).fillna(0).astype(int)
+    # Ordenar de mayor a menor para que el ranking sea visualmente obvio
+    counts = counts.sort_values(ascending=True)
+    total = int(counts.sum())
+
+    fig, ax = plt.subplots(figsize=(9, 4), dpi=140)
+    y = np.arange(len(counts))
+    bars = ax.barh(y, counts.to_numpy(),
+                   color=[OUTCOME_COLORS[o] for o in counts.index],
+                   edgecolor="white", linewidth=1.5)
+    ax.set_yticks(y)
+    ax.set_yticklabels(counts.index, fontsize=11, fontweight="bold")
+    ax.set_xlabel(f"# trials  (total: {total:,})")
+    ax.set_title(f"Distribución global de outcomes — {total:,} trials")
+    ax.set_xlim(0, counts.max() * 1.20)
+    ax.grid(axis="x", alpha=0.3, linestyle="--")
+    ax.set_axisbelow(True)
+
+    # Etiqueta con n + porcentaje al final de cada barra
+    for bar, val in zip(bars, counts.to_numpy()):
+        pct = 100 * val / total
+        ax.text(bar.get_width() + counts.max() * 0.015,
+                bar.get_y() + bar.get_height() / 2,
+                f"{val:,}  ({pct:.1f}%)",
+                va="center", ha="left", fontsize=10, fontweight="bold",
+                color="#212121")
+
+    # Pequeña leyenda de qué significa cada outcome
+    legend_text = ("TP=recupera target  ·  FP=converge a otro almacenado  ·  "
+                   "COMPLEMENT=converge a -ξ_k  ·  CICLO=no converge  ·  FN=espurio mixto")
+    ax.text(0.5, -0.20, legend_text, transform=ax.transAxes,
+            ha="center", va="top", fontsize=8, color="#607d8b", style="italic")
+
+    fig.tight_layout()
+    fig.savefig(out_dir / "outcomes_global_bar.png", bbox_inches="tight")
+    plt.close(fig)
+
+
+def plot_outcomes_table_by_noise(trials: pd.DataFrame, out_dir: Path) -> None:
+    """Tabla coloreada con outcomes × niveles de ruido.
+
+    Cada celda se tintea por intensidad dentro de su columna (más saturado
+    = más trials), usando la paleta del repo por outcome.
+    """
+    # Ordeno columnas como en la paleta: CICLO, COMPLEMENT, FN, FP, TP (alfabético)
+    col_order = sorted(OUTCOMES)
+    counts = (
+        trials.groupby(["noise", "outcome"]).size()
+        .unstack(fill_value=0)
+        .reindex(columns=col_order, fill_value=0)
+        .sort_index()
+    )
+    noises = counts.index.to_numpy()
+    data = counts.to_numpy()
+    n_rows, n_cols = data.shape
+    total_per_row = int(data.sum(axis=1)[0])  # mismo en todas las filas
+    col_max = data.max(axis=0)
+
+    def col_cmap(hex_color: str) -> LinearSegmentedColormap:
+        return LinearSegmentedColormap.from_list("col", ["#ffffff", hex_color])
+
+    fig, ax = plt.subplots(figsize=(10, 7.5), dpi=200)
+    ax.set_xlim(0, n_cols + 1)
+    ax.set_ylim(0, n_rows + 2)
+    ax.axis("off")
+
+    cell_h = 1.0
+    cw_noise = 1.0
+    cw_data = 1.0
+
+    ax.text((n_cols + 1) / 2, n_rows + 1.5,
+            f"Outcomes por nivel de ruido  ({total_per_row} trials por fila)",
+            ha="center", va="center", fontsize=14, fontweight="bold",
+            color="#212121")
+
+    # Header
+    ax.add_patch(patches.Rectangle((0, n_rows), cw_noise, cell_h,
+                                    facecolor="#37474f",
+                                    edgecolor="white", lw=1.5))
+    ax.text(cw_noise / 2, n_rows + cell_h / 2, "ruido",
+            ha="center", va="center", fontsize=11, fontweight="bold",
+            color="white")
+
+    for j, outcome in enumerate(col_order):
+        x = cw_noise + j * cw_data
+        ax.add_patch(patches.Rectangle((x, n_rows), cw_data, cell_h,
+                                        facecolor=OUTCOME_COLORS[outcome],
+                                        edgecolor="white", lw=1.5))
+        ax.text(x + cw_data / 2, n_rows + cell_h / 2, outcome,
+                ha="center", va="center", fontsize=11, fontweight="bold",
+                color="white")
+
+    # Filas (ruido bajo arriba)
+    for i in range(n_rows):
+        y = n_rows - 1 - i
+        ax.add_patch(patches.Rectangle((0, y), cw_noise, cell_h,
+                                        facecolor="#eceff1",
+                                        edgecolor="white", lw=1.0))
+        ax.text(cw_noise / 2, y + cell_h / 2, f"{noises[i]:.2f}",
+                ha="center", va="center", fontsize=10,
+                color="#212121", fontweight="bold")
+
+        for j, outcome in enumerate(col_order):
+            x = cw_noise + j * cw_data
+            val = data[i, j]
+            intensity = val / col_max[j] if col_max[j] > 0 else 0
+            cmap = col_cmap(OUTCOME_COLORS[outcome])
+            bg = cmap(0.15 + 0.7 * intensity)
+            rgb = np.array(bg[:3])
+            lum = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]
+            text_color = "white" if lum < 0.55 else "#212121"
+
+            ax.add_patch(patches.Rectangle((x, y), cw_data, cell_h,
+                                            facecolor=bg,
+                                            edgecolor="white", lw=1.0))
+            ax.text(x + cw_data / 2, y + cell_h / 2, f"{int(val)}",
+                    ha="center", va="center", fontsize=11,
+                    color=text_color,
+                    fontweight="bold" if intensity > 0.5 else "normal")
+
+    ax.text((n_cols + 1) / 2, -0.3,
+            "Color saturado = mayor cantidad de trials dentro de la columna  ·  "
+            "paleta del repo (TP=verde, FP=naranja, COMPLEMENT=violeta, FN=gris, CICLO=azul)",
+            ha="center", va="center", fontsize=8,
+            color="#607d8b", style="italic")
+
+    fig.tight_layout()
+    fig.savefig(out_dir / "outcomes_table_by_noise.png", bbox_inches="tight",
+                facecolor="white")
+    plt.close(fig)
+
+
+# ---------------------------------------------------------------------------
 # Energía: una figura con la trayectoria del representante peor de cada grupo
 # ---------------------------------------------------------------------------
 
@@ -393,6 +533,8 @@ def main():
 
     print("Plots cross-cutting...")
     plot_tp_curves(stats_gn, out_dir)
+    plot_outcomes_global_bar(trials, out_dir)
+    plot_outcomes_table_by_noise(trials, out_dir)
     plot_outcomes_stacked_global(trials, out_dir)
     plot_outcomes_stacked_by_group(trials, out_dir)
     plot_heatmap(stats_gn, "tasa_TP",
