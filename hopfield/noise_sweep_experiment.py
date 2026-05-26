@@ -66,3 +66,85 @@ def resolve_convergio_a(
             if np.array_equal(final, -stored):
                 return f"-{group_keys[i]}"
     return ""
+
+
+def _run_one_trial(
+    net: Hopfield, target: np.ndarray, noise: float, seed: int,
+) -> dict:
+    """Corre una ejecución y devuelve el dict crudo con todo lo necesario."""
+    rng = np.random.default_rng(seed)
+    query = add_noise(target, noise, rng)
+    final, history, reason = net.predict(query)
+    energies = [net.energy(s) for s in history]
+    return {
+        "query": query, "final": final, "history": history,
+        "energies": energies, "reason": reason,
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Barrido fino de ruido sobre 5 grupos.")
+    parser.add_argument("--letters", default="hopfield/letters.txt", type=Path)
+    parser.add_argument("--output", default="hopfield/output/mega_exp", type=Path)
+    args = parser.parse_args()
+
+    letters = load_letters(args.letters)
+    out_dir = args.output
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    trials_rows: list[dict] = []
+    traj_rows: list[dict] = []
+    iox_rows: list[dict] = []
+    repr_rows: list[dict] = []
+
+    for group in GROUPS:
+        print(f"Grupo {group}...")
+        group_keys = list(group)
+        group_patterns = np.array([letters[k].flatten() for k in group_keys])
+        net = Hopfield(group_patterns)
+
+        for target_idx, letter in enumerate(group_keys):
+            target = group_patterns[target_idx]
+            for noise in NOISE_LEVELS:
+                for sample_idx in range(N_SAMPLES):
+                    seed = BASE_SEED + sample_idx
+                    res = _run_one_trial(net, target, noise, seed)
+                    outcome = classify_trial(
+                        net, target_idx, res["final"], res["reason"], group_patterns,
+                    )
+                    convergio_a = resolve_convergio_a(
+                        net, res["final"], outcome, group_keys, group_patterns,
+                    )
+                    trials_rows.append({
+                        "group": group,
+                        "letter": letter,
+                        "noise": noise,
+                        "sample_idx": sample_idx,
+                        "seed": seed,
+                        "target_idx": target_idx,
+                        "motivo": res["reason"],
+                        "iters": len(res["history"]) - 1,
+                        "outcome": outcome,
+                        "convergio_a": convergio_a,
+                        "hamming_input_target": hamming(res["query"], target),
+                        "hamming_output_target": hamming(res["final"], target),
+                        "hamming_input_output": hamming(res["query"], res["final"]),
+                        "energia_inicial": res["energies"][0],
+                        "energia_final": res["energies"][-1],
+                    })
+
+                    if sample_idx == REPRESENTATIVE_SAMPLE_IDX:
+                        repr_rows.append({
+                            "group": group, "letter": letter,
+                            "noise": noise, "sample_idx": sample_idx,
+                        })
+                        # trajectories / io_patterns: en Task 3
+                        pass
+
+    df_trials = pd.DataFrame(trials_rows)
+    df_trials.to_csv(out_dir / "trials.csv", index=False)
+    print(f"trials.csv: {len(df_trials)} filas")
+
+
+if __name__ == "__main__":
+    main()
