@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from hopfield import Hopfield, add_noise, load_letters
-from run_experiments import hamming, io_rows, trajectory_rows
+from run_experiments import hamming
 
 
 GROUPS = ["GRTV", "JLRX", "AJKU", "BDOX", "HMNW"]
