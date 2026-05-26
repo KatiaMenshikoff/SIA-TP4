@@ -107,6 +107,11 @@ def main():
             target = group_patterns[target_idx]
             for noise in NOISE_LEVELS:
                 for sample_idx in range(N_SAMPLES):
+                    # Seed compartido entre niveles de ruido para el mismo sample_idx:
+                    # add_noise usa rng.random(shape) < p_flip, así que el mismo draw
+                    # uniforme con distinto threshold genera bitmasks anidados (el de
+                    # noise=0.2 es superset del de noise=0.1). Permite comparaciones
+                    # pareadas entre niveles para un mismo (grupo, letra, sample).
                     seed = BASE_SEED + sample_idx
                     res = _run_one_trial(net, target, noise, seed)
                     outcome = classify_trial(
