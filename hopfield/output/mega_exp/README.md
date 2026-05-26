@@ -9,13 +9,13 @@ Spec completa: [`docs/superpowers/specs/2026-05-26-hopfield-noise-sweep-design.m
 
 ## Setup
 
-| parámetro | valor |
-| --- | --- |
-| Grupos | `GRTV`, `JLRX`, `AJKU`, `BDOX`, `HMNW` |
-| Niveles de ruido | 0.10, 0.20, 0.30, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65 |
-| Samples por configuración | 30 |
-| Seed | `1 + sample_idx` (compartido entre niveles de ruido) |
-| Trials totales | 5 × 4 × 9 × 30 = **5400** |
+| parámetro                 | valor                                                |
+| ------------------------- | ---------------------------------------------------- |
+| Grupos                    | `GRTV`, `JLRX`, `AJKU`, `BDOX`, `HMNW`               |
+| Niveles de ruido          | 0.10, 0.20, 0.30, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65 |
+| Samples por configuración | 30                                                   |
+| Seed                      | `1 + sample_idx` (compartido entre niveles de ruido) |
+| Trials totales            | 5 × 4 × 9 × 30 = **5400**                            |
 
 **Diseño del seed.** El seed depende solo de `sample_idx`, no del nivel de
 ruido. Como `add_noise` usa `rng.random(shape) < p_flip`, el mismo draw
@@ -59,16 +59,16 @@ patrón almacenado se etiquete honestamente como CICLO.
 ### Tasa de TP por nivel de ruido (promedio sobre grupos y letras)
 
 | ruido | tasa_TP |
-| ---: | ---: |
-| 0.10 | 0.732 |
-| 0.20 | 0.665 |
-| 0.30 | 0.485 |
-| 0.40 | 0.272 |
-| 0.45 | 0.165 |
-| 0.50 | 0.102 |
-| 0.55 | 0.050 |
-| 0.60 | 0.032 |
-| 0.65 | 0.010 |
+| ----: | ------: |
+|  0.10 |   0.732 |
+|  0.20 |   0.665 |
+|  0.30 |   0.485 |
+|  0.40 |   0.272 |
+|  0.45 |   0.165 |
+|  0.50 |   0.102 |
+|  0.55 |   0.050 |
+|  0.60 |   0.032 |
+|  0.65 |   0.010 |
 
 Decaimiento monótono. A noise=0.10 la red recupera tres de cada cuatro
 veces; a noise=0.50 (el "punto de no-información") solo un 10%; a
