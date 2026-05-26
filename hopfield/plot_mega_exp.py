@@ -28,7 +28,9 @@ from matplotlib.colors import ListedColormap
 
 
 GROUPS = ["GRTV", "JLRX", "AJKU", "BDOX", "HMNW"]
-NOISE_LEVELS = [0.10, 0.20, 0.30, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65]
+# NOISE_LEVELS se rellena en `main()` desde la data (sorted unique del CSV),
+# para que los plots se adapten si se agregan más niveles con extend_noise_experiment.
+NOISE_LEVELS: list[float] = []
 OUTCOMES = ["TP", "FP", "FN", "COMPLEMENT", "CICLO"]
 
 # Paleta consistente entre todos los plots
@@ -89,7 +91,7 @@ def plot_outcomes_stacked_global(trials: pd.DataFrame, out_dir: Path) -> None:
     totals = counts.sum(axis=1)
     proportions = counts.div(totals, axis=0)
 
-    fig, ax = plt.subplots(figsize=(8, 4.5), dpi=140)
+    fig, ax = plt.subplots(figsize=(max(8, 0.65 * len(NOISE_LEVELS)), 4.5), dpi=140)
     bottom = np.zeros(len(proportions))
     x = np.arange(len(proportions))
     for outcome in OUTCOMES:
@@ -98,7 +100,7 @@ def plot_outcomes_stacked_global(trials: pd.DataFrame, out_dir: Path) -> None:
                color=OUTCOME_COLORS[outcome], edgecolor="white", linewidth=0.5)
         bottom += vals
     ax.set_xticks(x)
-    ax.set_xticklabels([f"{n:.2f}" for n in proportions.index])
+    ax.set_xticklabels([f"{n:.2f}" for n in proportions.index], rotation=45)
     ax.set_xlabel("nivel de ruido")
     ax.set_ylabel("proporción de trials")
     ax.set_title("Distribución de outcomes por ruido (todos los grupos)")
@@ -153,7 +155,7 @@ def plot_heatmap(stats_gn: pd.DataFrame, column: str, title: str,
         .reindex(index=GROUPS, columns=NOISE_LEVELS)
     )
 
-    fig, ax = plt.subplots(figsize=(8, 3.5), dpi=140)
+    fig, ax = plt.subplots(figsize=(max(8, 0.7 * len(NOISE_LEVELS)), 3.5), dpi=140)
     im = ax.imshow(matrix.to_numpy(), aspect="auto", cmap=cmap,
                    vmin=0, vmax=1, interpolation="nearest")
     ax.set_xticks(range(len(NOISE_LEVELS)))
@@ -383,6 +385,11 @@ def main():
     io_df = pd.read_csv(in_dir / "io_patterns.csv")
     traj = pd.read_csv(in_dir / "trajectories.csv")
     print(f"  trials: {len(trials)}  stats_gn: {len(stats_gn)}  io: {len(io_df)}  traj: {len(traj)}")
+
+    # Derivar los niveles de ruido del dataset (admite extensiones via extend_noise_experiment)
+    global NOISE_LEVELS
+    NOISE_LEVELS = sorted(trials["noise"].unique().tolist())
+    print(f"  niveles de ruido: {NOISE_LEVELS}")
 
     print("Plots cross-cutting...")
     plot_tp_curves(stats_gn, out_dir)

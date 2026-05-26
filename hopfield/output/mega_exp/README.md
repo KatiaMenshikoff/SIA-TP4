@@ -2,39 +2,48 @@
 
 Experimento global de Hopfield: para cada uno de los 5 grupos de 4 letras
 elegidos en `hopfield/Seleccion patrones letras.md`, se mide la
-recuperación bajo ruido a 9 niveles, con 30 muestras independientes por
-configuración. Total: **5400 ejecuciones**.
+recuperación bajo ruido a 13 niveles, con 30 muestras independientes por
+configuración. Total: **7800 ejecuciones**.
 
-Spec completa: [`docs/superpowers/specs/2026-05-26-hopfield-noise-sweep-design.md`](../../../docs/superpowers/specs/2026-05-26-hopfield-noise-sweep-design.md).
+El experimento se construyó en dos pasos:
+1. `hopfield/noise_sweep_experiment.py` — corre los 9 niveles base.
+2. `hopfield/extend_noise_experiment.py` — extiende con 4 niveles
+   adicionales (0.05, 0.15, 0.25, 0.35) y mergea con los CSVs existentes
+   (idempotente, no re-corre configs ya hechas).
+
+Spec completa:
+[`docs/superpowers/specs/2026-05-26-hopfield-noise-sweep-design.md`](../../../docs/superpowers/specs/2026-05-26-hopfield-noise-sweep-design.md).
 
 ## Setup
 
-| parámetro                 | valor                                                |
-| ------------------------- | ---------------------------------------------------- |
-| Grupos                    | `GRTV`, `JLRX`, `AJKU`, `BDOX`, `HMNW`               |
-| Niveles de ruido          | 0.10, 0.20, 0.30, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65 |
-| Samples por configuración | 30                                                   |
-| Seed                      | `1 + sample_idx` (compartido entre niveles de ruido) |
-| Trials totales            | 5 × 4 × 9 × 30 = **5400**                            |
+| parámetro                 | valor                                                                              |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| Grupos                    | `GRTV`, `JLRX`, `AJKU`, `BDOX`, `HMNW`                                             |
+| Niveles de ruido          | 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65       |
+| Samples por configuración | 30                                                                                 |
+| Seed                      | `1 + sample_idx` (compartido entre niveles de ruido)                               |
+| Trials totales            | 5 × 4 × 13 × 30 = **7800**                                                         |
 
 **Diseño del seed.** El seed depende solo de `sample_idx`, no del nivel de
 ruido. Como `add_noise` usa `rng.random(shape) < p_flip`, el mismo draw
 uniforme con distinto threshold produce bitmasks **anidados** (el bitmask
 a noise=0.2 es superset del de noise=0.1). Eso permite comparaciones
 pareadas: dentro de un mismo `(grupo, letra, sample)` el ruido escala
-agregando flips, sin cambiar la base random.
+agregando flips, sin cambiar la base random. Los niveles agregados por
+`extend_noise_experiment.py` siguen el mismo esquema, así que se insertan
+naturalmente en la jerarquía.
 
 ## Taxonomía de outcomes
 
 Cada trial se etiqueta con uno de 5 buckets:
 
-| outcome | qué pasó |
-| --- | --- |
-| **TP** | La red converge al patrón target (recuperación correcta). |
-| **FP** | La red converge a otro patrón almacenado del grupo. |
-| **COMPLEMENT** | La red converge a `-ξ_k` para algún `k` (estado espurio "anti-patrón"). |
-| **FN** | Estable, no es ningún almacenado ni complemento (espurio mixto). |
-| **CICLO** | No converge a punto fijo (incluye `reason == "cycle"` y `reason == "max_iter"`). |
+| outcome        | qué pasó                                                                          |
+| -------------- | --------------------------------------------------------------------------------- |
+| **TP**         | La red converge al patrón target (recuperación correcta).                         |
+| **FP**         | La red converge a otro patrón almacenado del grupo.                               |
+| **COMPLEMENT** | La red converge a `-ξ_k` para algún `k` (estado espurio "anti-patrón").           |
+| **FN**         | Estable, no es ningún almacenado ni complemento (espurio mixto).                  |
+| **CICLO**      | No converge a punto fijo (incluye `reason == "cycle"` y `reason == "max_iter"`).  |
 
 **TN no aplica** acá: todos los inputs son patrones almacenados con ruido,
 nunca letras externas. Si queremos medir rechazo (input = letra no
@@ -46,57 +55,68 @@ patrón almacenado se etiquete honestamente como CICLO.
 
 ## Resultados resumidos
 
-### Distribución global de outcomes (5400 trials)
+### Distribución global de outcomes (7800 trials)
 
-| outcome | n | % |
-| --- | ---: | ---: |
-| COMPLEMENT | 1563 | 28.9% |
-| TP | 1507 | 27.9% |
-| FP | 1260 | 23.3% |
-| CICLO | 649 | 12.0% |
-| FN | 421 | 7.8% |
+| outcome    |    n |     % |
+| ---------- | ---: | ----: |
+| TP         | 2951 | 37.8% |
+| FP         | 1805 | 23.1% |
+| COMPLEMENT | 1715 | 22.0% |
+| CICLO      |  828 | 10.6% |
+| FN         |  501 |  6.4% |
 
 ### Tasa de TP por nivel de ruido (promedio sobre grupos y letras)
 
 | ruido | tasa_TP |
 | ----: | ------: |
-|  0.10 |   0.732 |
-|  0.20 |   0.665 |
-|  0.30 |   0.485 |
-|  0.40 |   0.272 |
-|  0.45 |   0.165 |
-|  0.50 |   0.102 |
-|  0.55 |   0.050 |
-|  0.60 |   0.032 |
-|  0.65 |   0.010 |
+| 0.05  |   0.738 |
+| 0.10  |   0.732 |
+| 0.15  |   0.705 |
+| 0.20  |   0.665 |
+| 0.25  |   0.598 |
+| 0.30  |   0.485 |
+| 0.35  |   0.365 |
+| 0.40  |   0.272 |
+| 0.45  |   0.165 |
+| 0.50  |   0.102 |
+| 0.55  |   0.050 |
+| 0.60  |   0.032 |
+| 0.65  |   0.010 |
 
-Decaimiento monótono. A noise=0.10 la red recupera tres de cada cuatro
-veces; a noise=0.50 (el "punto de no-información") solo un 10%; a
-noise=0.65 casi nunca.
+Con los niveles agregados el decaimiento queda mucho más suave. Se
+distingue una **meseta** entre 0.05 y 0.15 (la red recupera ~73% sin
+importar cuánto ruido tenga mientras esté por debajo del 15%), un
+**régimen de degradación lineal** entre 0.20 y 0.45 (cada 5% de ruido
+adicional bajan ~10 puntos porcentuales de TP), y una **cola plana** a
+partir de 0.55 (la red ya casi nunca recupera).
 
 ### Tasa de TP por grupo (promedio sobre letras y ruidos)
 
 | grupo | tasa_TP |
-| --- | ---: |
-| JLRX | 0.393 |
-| GRTV | 0.368 |
-| AJKU | 0.318 |
-| BDOX | 0.162 |
-| HMNW | 0.156 |
+| ----- | ------: |
+| JLRX  |   0.535 |
+| GRTV  |   0.508 |
+| AJKU  |   0.452 |
+| BDOX  |   0.212 |
+| HMNW  |   0.184 |
 
 El ranking sigue el orden esperado por ortogonalidad (ver
 `Seleccion patrones letras.md`): los grupos con `|⟨ξ_i, ξ_j⟩|` medio más
 bajo (más "ortogonales") recuperan mejor. `HMNW` es el peor grupo
 intencionalmente.
 
-### Outcomes por nivel de ruido (sumado entre grupos y letras)
+### Outcomes por nivel de ruido (sumado entre grupos y letras, 600 trials por fila)
 
 ```
 outcome  CICLO  COMPLEMENT   FN   FP   TP
 noise
+0.05         7          30    0  120  443
 0.10         6          30    2  123  439
+0.15        21          29    5  122  423
 0.20        32          29   14  126  399
+0.25        58          32   19  132  359
 0.30        81          35   45  148  291
+0.35        93          61   56  171  219
 0.40        89         107   58  183  163
 0.45        94         174   52  181   99
 0.50       107         216   55  161   61
@@ -110,16 +130,21 @@ input se "voltea" más allá del 50% (más de la mitad de los pixeles
 flippeados) y la red termina en el atractor antipodal del target — un
 fenómeno bien conocido de Hopfield.
 
+A ruido muy bajo (0.05-0.10) la red rara vez espurea: dominan TP y FP,
+y CICLO/FN apenas asoman. CICLO crece monótonamente hasta 0.50 y
+después cae porque los inputs muy ruidosos caen directamente en el
+atractor antipodal (estable) sin oscilar.
+
 ## Archivos en este directorio
 
-| archivo | contenido | filas | columnas |
-| --- | --- | ---: | ---: |
-| `trials.csv` | 1 fila por trial (ground truth) | 5400 | 15 |
-| `stats_by_config.csv` | Conteos y tasas por `(group, letter, noise)` | 180 | 14 |
-| `stats_by_group_noise.csv` | Conteos y tasas por `(group, noise)` | 45 | 13 |
-| `representatives.csv` | Llaves del trial representante (sample_idx=0) por config | 180 | 4 |
-| `trajectories.csv` | Trayectoria completa de los representantes (estado por iteración) | ~680 | 31 |
-| `io_patterns.csv` | Input vs output pixel a pixel de los representantes | 4500 | 7 |
+| archivo                    | contenido                                                | filas | columnas |
+| -------------------------- | -------------------------------------------------------- | ----: | -------: |
+| `trials.csv`               | 1 fila por trial (ground truth)                          |  7800 |       15 |
+| `stats_by_config.csv`      | Conteos y tasas por `(group, letter, noise)`             |   260 |       14 |
+| `stats_by_group_noise.csv` | Conteos y tasas por `(group, noise)`                     |    65 |       13 |
+| `representatives.csv`      | Llaves del trial representante (sample_idx=0) por config |   260 |        4 |
+| `trajectories.csv`         | Trayectoria completa de los representantes              |   955 |       31 |
+| `io_patterns.csv`          | Input vs output pixel a pixel de los representantes      |  6500 |        7 |
 
 ### Esquema `trials.csv`
 
@@ -166,27 +191,33 @@ reusar el código de overlay de `plot_experiments.py` con cambios mínimos.
 Desde la raíz del repo:
 
 ```bash
+# (1) Corrida base: 9 niveles, 5400 trials
 PYTHONPATH=hopfield python3 hopfield/noise_sweep_experiment.py
+
+# (2) Extensión: agrega 4 niveles más, queda en 7800 trials
+PYTHONPATH=hopfield python3 hopfield/extend_noise_experiment.py
 ```
 
-Tarda pocos segundos. Salidas en `hopfield/output/mega_exp/`.
+La extensión es idempotente — si una config ya está en `trials.csv`, no
+la re-corre. Si querés agregar más niveles, modificá la lista
+`NEW_NOISE_LEVELS` en `extend_noise_experiment.py` y volvé a correrlo.
 
-Tests unitarios de la lógica de clasificación y agregación:
+Tests unitarios:
 
 ```bash
 python3 -m pytest hopfield/test_noise_sweep.py -v
 ```
 
-## Próximo paso: plots
+Plots:
 
-El script no genera plots, solo CSVs. El plotting va en un script aparte
-(pendiente) que va a producir:
+```bash
+python3 hopfield/plot_mega_exp.py
+```
 
-- Curvas `tasa_TP` vs `ruido`, una por grupo, en un mismo gráfico (para
-  comparar grupos buenos vs malos).
-- Heatmap o barras apiladas con la distribución de outcomes por
-  `(grupo, ruido)`.
-- Para los 180 representantes: triplete input/output/overlay (igual que en
-  `output/<group>/plots/`), energía vs iteración, y tira de estados.
+El script de plots **deriva la lista de niveles de ruido del propio
+trials.csv**, así que no hace falta tocarlo si extendés el experimento.
 
-Los CSVs ya tienen toda la información necesaria.
+## Plots
+
+Ver [`README_resultados_plots.md`](README_resultados_plots.md) para la
+guía completa de cada figura. Salidas en [`plots/`](plots/).
