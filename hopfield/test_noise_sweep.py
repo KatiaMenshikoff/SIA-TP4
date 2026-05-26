@@ -77,7 +77,7 @@ def test_classify_cycle(small_net):
     assert outcome == "CICLO"
 
 
-def test_classify_max_iter_buckets_with_cycle(small_net):
+def test_classify_max_iter_is_ciclo(small_net):
     net, patterns = small_net
     final = np.array([1, 1, -1, 1, -1, 1, -1, -1, 1], dtype=np.float64)
     outcome = classify_trial(net, target_idx=0, final=final,
@@ -104,6 +104,13 @@ def test_resolve_convergio_a_complement(small_net):
     final = -patterns[1].copy()
     s = resolve_convergio_a(net, final, "COMPLEMENT", ["A", "B"], patterns)
     assert s == "-B"
+
+
+def test_resolve_convergio_a_complement_first(small_net):
+    net, patterns = small_net
+    final = -patterns[0].copy()
+    s = resolve_convergio_a(net, final, "COMPLEMENT", ["A", "B"], patterns)
+    assert s == "-A"
 
 
 def test_resolve_convergio_a_fn(small_net):
