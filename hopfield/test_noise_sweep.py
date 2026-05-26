@@ -16,10 +16,10 @@ from noise_sweep_experiment import classify_trial, resolve_convergio_a
 
 @pytest.fixture
 def small_net():
-    """Red con 2 patrones ortogonales fáciles de razonar."""
+    """Red con 2 patrones distintos fáciles de razonar."""
     patterns = np.array([
         [1, 1, 1, -1, -1, -1, 1, 1, 1],     # patrón 0
-        [1, -1, 1, -1, 1, -1, 1, -1, 1],    # patrón 1 (ortogonal al 0)
+        [1, -1, 1, -1, 1, -1, 1, -1, 1],    # patrón 1 (distinto al 0)
     ], dtype=np.float64)
     net = Hopfield(patterns)
     return net, patterns
