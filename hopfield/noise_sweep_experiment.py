@@ -68,6 +68,31 @@ def resolve_convergio_a(
     return ""
 
 
+def _write_stats(df: pd.DataFrame, out_dir: Path) -> None:
+    """Deriva stats_by_config.csv y stats_by_group_noise.csv desde trials.
+
+    Genera conteos y tasas por cada outcome del schema OUTCOMES,
+    rellenando con 0 los buckets que no aparezcan en el groupby.
+    """
+    for keys, name in [
+        (["group", "letter", "noise"], "stats_by_config.csv"),
+        (["group", "noise"], "stats_by_group_noise.csv"),
+    ]:
+        counts = (
+            df.groupby(keys)["outcome"]
+            .value_counts()
+            .unstack(fill_value=0)
+        )
+        for o in OUTCOMES:
+            if o not in counts.columns:
+                counts[o] = 0
+        counts = counts[OUTCOMES].rename(columns={o: f"n_{o}" for o in OUTCOMES})
+        counts["n_samples"] = counts[[f"n_{o}" for o in OUTCOMES]].sum(axis=1)
+        for o in OUTCOMES:
+            counts[f"tasa_{o}"] = counts[f"n_{o}"] / counts["n_samples"]
+        counts.reset_index().to_csv(out_dir / name, index=False)
+
+
 def _run_one_trial(
     net: Hopfield, target: np.ndarray, noise: float, seed: int,
 ) -> dict:
@@ -168,6 +193,9 @@ def main():
     df_trials = pd.DataFrame(trials_rows)
     df_trials.to_csv(out_dir / "trials.csv", index=False)
     print(f"trials.csv: {len(df_trials)} filas")
+
+    _write_stats(df_trials, out_dir)
+    print("stats_by_config.csv y stats_by_group_noise.csv escritos")
 
     pd.DataFrame(repr_rows).to_csv(out_dir / "representatives.csv", index=False)
     print(f"representatives.csv: {len(repr_rows)} filas")
