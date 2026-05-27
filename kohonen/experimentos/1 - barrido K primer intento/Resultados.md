@@ -28,11 +28,11 @@ Más arriba de K=4 ya no tiene sentido en este dataset: con K=5 son 25 celdas pa
 
 Tabla generada automáticamente — fuente: `resumen_por_K.csv`.
 
-| K | total neuronas | QE (media) | QE (std) | neuronas muertas (media) | % muertas (media) | % muertas (std) |
-|---|---:|---:|---:|---:|---:|---:|
-| 2 | 4  | **2.323** | 0.005 | 1.2 / 4  | **30.0%** | 19.7% |
-| 3 | 9  | **2.103** | 0.013 | 3.2 / 9  | **35.6%** | 10.2% |
-| 4 | 16 | **1.987** | 0.054 | 8.0 / 16 | **50.0%** |  7.2% |
+| K   | total neuronas | QE (media) | QE (std) | neuronas muertas (media) | % muertas (media) | % muertas (std) |
+| --- | -------------: | ---------: | -------: | -----------------------: | ----------------: | --------------: |
+| 2   |              4 |  **2.323** |    0.005 |                  1.2 / 4 |         **30.0%** |           19.7% |
+| 3   |              9 |  **2.103** |    0.013 |                  3.2 / 9 |         **35.6%** |           10.2% |
+| 4   |             16 |  **1.987** |    0.054 |                 8.0 / 16 |         **50.0%** |            7.2% |
 
 Plot: `qe_y_dead_vs_k.png`.
 
@@ -167,7 +167,7 @@ Para validar visualmente esta hipótesis, los dos artefactos de K=3:
 
 *Centro muerto, esquinas vivas. (1,1) y la columna del medio nunca ganan.*
 
-![Matriz U K=3](matriz_u_K3.png)
+![Matriz U K=3](kohonen/experimentos/1%20-%20barrido%20K%20primer%20intento/matriz_u_K3.png)
 
 *Las celdas muertas en el centro tienen distancia alta a sus vecinas: están "atrapadas" en pesos intermedios.*
 
