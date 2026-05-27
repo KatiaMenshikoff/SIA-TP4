@@ -61,12 +61,12 @@ o más chico—, la red recupera mejor en promedio.
 
 ### Tasa de TP por grupo
 
-| grupo    |  p | tasa_TP promedio |
-| -------- | -: | ---------------: |
-| AL       |  2 |            0.628 |
-| FUY      |  3 |            0.570 |
-| GMPVZ    |  5 |            0.487 |
-| JLRTVX   |  6 |            0.386 |
+| grupo  |   p | tasa_TP promedio |
+| ------ | --: | ---------------: |
+| AL     |   2 |            0.628 |
+| FUY    |   3 |            0.570 |
+| GMPVZ  |   5 |            0.487 |
+| JLRTVX |   6 |            0.386 |
 
 Ordenamiento estricto por p — menos patrones, mejor recuperación. Pero
 ojo: comparando con el baseline (sección de plots), **GMPVZ (p=5) supera
