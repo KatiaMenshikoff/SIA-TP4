@@ -28,9 +28,10 @@ import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 
 
-GROUPS = ["GRTV", "JLRX", "AJKU", "BDOX", "HMNW"]
-# NOISE_LEVELS se rellena en `main()` desde la data (sorted unique del CSV),
-# para que los plots se adapten si se agregan más niveles con extend_noise_experiment.
+# GROUPS y NOISE_LEVELS se rellenan en `main()` desde el propio trials.csv
+# (sorted unique), para que el script trabaje con cualquier conjunto de grupos
+# y niveles de ruido — incluyendo los grupos de capacidad (p=2,3,5,6).
+GROUPS: list[str] = []
 NOISE_LEVELS: list[float] = []
 OUTCOMES = ["TP", "FP", "FN", "COMPLEMENT", "CICLO"]
 
@@ -50,14 +51,14 @@ COLOR_MATCH_ON = "#a8e6a3"   # verde claro: match en +1
 COLOR_MATCH_OFF = "#ffffff"  # blanco:      match en -1
 COLOR_MISMATCH = "#e04848"   # rojo:        mismatch
 
-# Color de cada grupo en los plots cross-cutting
-GROUP_COLORS = {
-    "GRTV": "#1f77b4",
-    "JLRX": "#2ca02c",
-    "AJKU": "#ff7f0e",
-    "BDOX": "#d62728",
-    "HMNW": "#9467bd",
-}
+# GROUP_COLORS se rellena en `main()` a partir de los grupos derivados de la data.
+GROUP_COLORS: dict[str, str] = {}
+
+# Paleta cuando no hay un color predefinido (matplotlib tab10 hexed)
+_DEFAULT_GROUP_PALETTE = [
+    "#1f77b4", "#2ca02c", "#ff7f0e", "#d62728", "#9467bd",
+    "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf",
+]
 
 
 # ---------------------------------------------------------------------------
@@ -113,8 +114,11 @@ def plot_outcomes_stacked_global(trials: pd.DataFrame, out_dir: Path) -> None:
 
 
 def plot_outcomes_stacked_by_group(trials: pd.DataFrame, out_dir: Path) -> None:
-    """5 subplots, uno por grupo: outcomes apilados por ruido."""
-    fig, axes = plt.subplots(1, 5, figsize=(18, 4), dpi=140, sharey=True)
+    """Un subplot por grupo: outcomes apilados por ruido."""
+    n = len(GROUPS)
+    fig, axes = plt.subplots(1, n, figsize=(3.6 * n, 4), dpi=140, sharey=True)
+    if n == 1:
+        axes = [axes]
     for ax, group in zip(axes, GROUPS):
         sub = trials[trials["group"] == group]
         counts = (
@@ -470,7 +474,10 @@ def plot_energy_examples(
 ) -> None:
     """Una figura con 5 subplots: para cada grupo, energía vs iter de un
     representante "interesante" (el que más iteraciones tardó)."""
-    fig, axes = plt.subplots(1, 5, figsize=(18, 3.2), dpi=140, sharey=False)
+    n = len(GROUPS)
+    fig, axes = plt.subplots(1, n, figsize=(3.6 * n, 3.2), dpi=140, sharey=False)
+    if n == 1:
+        axes = [axes]
     for ax, group in zip(axes, GROUPS):
         # Elijo el representante con más iters dentro del grupo
         reps_group = trials[(trials["group"] == group) & (trials["sample_idx"] == 0)]
@@ -526,9 +533,18 @@ def main():
     traj = pd.read_csv(in_dir / "trajectories.csv")
     print(f"  trials: {len(trials)}  stats_gn: {len(stats_gn)}  io: {len(io_df)}  traj: {len(traj)}")
 
-    # Derivar los niveles de ruido del dataset (admite extensiones via extend_noise_experiment)
-    global NOISE_LEVELS
+    # Derivar grupos y niveles de ruido del propio CSV — permite que el mismo
+    # script grafique tanto el mega_exp original como mega_exp_capacity.
+    global NOISE_LEVELS, GROUPS, GROUP_COLORS
     NOISE_LEVELS = sorted(trials["noise"].unique().tolist())
+    # Mantener el orden por longitud (p) ascendente y después alfabético — así
+    # los grupos chicos quedan a la izquierda en los plots cross-cutting.
+    GROUPS = sorted(trials["group"].unique().tolist(), key=lambda g: (len(g), g))
+    GROUP_COLORS = {
+        g: _DEFAULT_GROUP_PALETTE[i % len(_DEFAULT_GROUP_PALETTE)]
+        for i, g in enumerate(GROUPS)
+    }
+    print(f"  grupos: {GROUPS}")
     print(f"  niveles de ruido: {NOISE_LEVELS}")
 
     print("Plots cross-cutting...")
