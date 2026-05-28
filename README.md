@@ -44,11 +44,4 @@ python3 hopfield/plot_experiments.py
 
 Los scripts de `hopfield/` que importan entre sí necesitan `PYTHONPATH=hopfield` (o correrlos desde dentro del directorio).
 
-## Documentación
-
-- `docs/consigna.pdf` — enunciado oficial del TP.
-- `docs/resumen-todas-clases-TP4.md` — resumen indexado de las clases.
-- `docs/clases/` — material original por tema (PDFs + transcripts).
-- `CLAUDE.md` — guía detallada de la estructura del repo y de cada ejercicio.
-
 Los informes específicos de cada ejercicio están en sus respectivos directorios (`SIA-PCA/analisis.pdf`, `kohonen/experimentos.md`, `oja/implementacion y resultados.md`, `hopfield/Implementación.md`).
