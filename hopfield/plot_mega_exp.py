@@ -9,6 +9,8 @@ Lee los CSVs producidos por `noise_sweep_experiment.py` y genera:
   - `heatmap_complement.png`         : heatmap tasa_COMPLEMENT.
   - `<grupo>_overlay_grid.png`       : 4 letras × 9 ruidos de overlays input/output
                                        para los trials representantes.
+  - `<grupo>_output_grid.png`        : misma grilla, pero mostrando solo el OUTPUT
+                                       de la red (negro = +1, blanco = -1).
   - `<grupo>_outcomes_by_letter.png` : barras apiladas por (letra, ruido) del grupo.
 
 Convención del overlay (igual que en `plot_experiments.py`):
@@ -276,6 +278,71 @@ def plot_overlay_grid_for_group(
     )
     fig.tight_layout()
     fig.savefig(out_dir / f"{group}_overlay_grid.png", bbox_inches="tight")
+    plt.close(fig)
+
+
+def plot_output_grid_for_group(
+    group: str, io_df: pd.DataFrame, trials_df: pd.DataFrame, out_dir: Path,
+) -> None:
+    """Igual que plot_overlay_grid_for_group pero mostrando el OUTPUT crudo
+    de la red (negro = +1, blanco = -1), no el overlay input/output."""
+    group_keys = list(group)
+    fig, axes = plt.subplots(
+        len(group_keys), len(NOISE_LEVELS),
+        figsize=(1.5 * len(NOISE_LEVELS), 1.7 * len(group_keys)),
+        dpi=140,
+    )
+    if len(group_keys) == 1:
+        axes = np.array([axes])
+
+    cmap = ListedColormap([COLOR_BG, COLOR_ON])  # -1 -> blanco, +1 -> negro
+
+    for i, letter in enumerate(group_keys):
+        for j, noise in enumerate(NOISE_LEVELS):
+            ax = axes[i, j]
+            sub = io_df[
+                (io_df["group"] == group)
+                & (io_df["letter"] == letter)
+                & (io_df["noise"] == noise)
+                & (io_df["sample_idx"] == 0)
+            ].sort_values("pixel")
+            if len(sub) == 0:
+                ax.axis("off")
+                continue
+            out = sub["output"].to_numpy().reshape(5, 5)
+            ax.imshow((out > 0).astype(int), cmap=cmap, vmin=0, vmax=1)
+            ax.set_xticks(np.arange(-0.5, 5, 1), minor=True)
+            ax.set_yticks(np.arange(-0.5, 5, 1), minor=True)
+            ax.grid(which="minor", color="black", linewidth=0.5)
+            ax.set_xticks([]); ax.set_yticks([])
+
+            tr = trials_df[
+                (trials_df["group"] == group)
+                & (trials_df["letter"] == letter)
+                & (trials_df["noise"] == noise)
+                & (trials_df["sample_idx"] == 0)
+            ]
+            outcome = tr["outcome"].iloc[0] if len(tr) else ""
+            convergio = tr["convergio_a"].iloc[0] if len(tr) else ""
+            label = outcome
+            if pd.notna(convergio) and convergio != "":
+                label = f"{outcome}\n({convergio})"
+            ax.set_xlabel(label, fontsize=7,
+                          color=OUTCOME_COLORS.get(outcome, "black"))
+
+            if i == 0:
+                ax.set_title(f"{noise:.2f}", fontsize=9)
+            if j == 0:
+                ax.set_ylabel(letter, fontsize=11, rotation=0, labelpad=12,
+                              va="center")
+
+    fig.suptitle(
+        f"Grupo {group} — output de la red para el representante (sample_idx=0)\n"
+        "negro = +1, blanco = -1",
+        fontsize=11, y=1.01,
+    )
+    fig.tight_layout()
+    fig.savefig(out_dir / f"{group}_output_grid.png", bbox_inches="tight")
     plt.close(fig)
 
 
@@ -564,6 +631,7 @@ def main():
     print("Plots por grupo (overlays + outcomes por letra)...")
     for group in GROUPS:
         plot_overlay_grid_for_group(group, io_df, trials, out_dir)
+        plot_output_grid_for_group(group, io_df, trials, out_dir)
         plot_outcomes_by_letter_for_group(group, trials, out_dir)
         print(f"  {group}")
 
